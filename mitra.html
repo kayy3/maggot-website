@@ -1,113 +1,5 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Maggot Cloud | PKM-PI 2026</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-
-    <style>
-        :root { --primary: #1e8449; --secondary: #27ae60; --bg: #f4f7f6; --text: #2c3e50; --danger: #e74c3c; --market: #2980b9; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { display: flex; background: var(--bg); color: var(--text); min-height: 100vh; }
-        .sidebar { width: 280px; background: var(--primary); color: white; height: 100vh; position: fixed; padding: 30px 20px; z-index: 100; }
-        .sidebar h2 { margin-bottom: 5px; font-size: 20px; text-align: center; }
-        .sidebar .sub-title { font-size: 10px; text-align: center; margin-bottom: 25px; color: #d4efdf; display: block; }
-        .nav-link { padding: 12px 15px; margin: 5px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; font-size: 14px; text-decoration: none; color: white; }
-        .nav-link:hover, .nav-link.active { background: var(--secondary); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .nav-market { background: var(--market); font-weight: bold; margin-top: 15px; border: 1px solid rgba(255,255,255,0.3); }
-        .main { flex: 1; margin-left: 280px; padding: 40px; width: calc(100% - 280px); }
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 4px solid var(--secondary); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .big-num { font-size: 24px; font-weight: bold; color: var(--primary); }
-        .small-label { font-size: 11px; color: #7f8c8d; text-transform: uppercase; }
-        input, select, button { padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; width: 100%; }
-        button { background: var(--secondary); color: white; border: none; font-weight: bold; cursor: pointer; }
-        .badge { padding: 4px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .bg-paid { background: #d4efdf; color: #1e8449; }
-        .bg-overdue { background: #fadbd8; color: #e74c3c; animation: blinker 1.5s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.5; } }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
-    </style>
-</head>
-<body>
-
-<div class="sidebar">
-    <h2>🌱 GREEN MAGGOT</h2>
-    <span class="sub-title">Ekonomi Sirkular Semarang Utara</span>
-    
-    <div class="nav-link active" onclick="showPage(event, 'dashboard')">📊 Dashboard Cloud</div>
-    <div class="nav-link" onclick="showPage(event, 'stok')">📦 Inventory Monitoring</div>
-    <div class="nav-link" onclick="showPage(event, 'logistik')">🚚 Green Logistics</div>
-    <div class="nav-link" onclick="showPage(event, 'kontrak')">📑 Smart Contract</div>
-    
-    <a href="https://bit.ly/3Zk0eWT" target="_blank" class="nav-link nav-market">🚀 Akses Pasar Digital</a>
-
-    <button onclick="confirmReset()" style="background: transparent; border: 1px solid #ff9a9a; color: #ff9a9a; margin-top: 40px; font-size: 12px;">Reset Data Cloud</button>
-</div>
-
-<div class="main">
-    <div id="dashboard" class="page active">
-        <h1>Cloud Real-Time Monitoring</h1>
-        <div id="urgent-alert" style="display:none; background:#fff3cd; padding:15px; border-radius:8px; margin-bottom:20px; border-left:5px solid #ffc107;"><b></b></div>
-        <div class="grid">
-            <div class="card"><span class="small-label">Limbah Organik</span><div class="big-num" id="dash-limbah">0 / 500 kg</div><progress id="limbah-bar" value="0" max="500" style="width:100%"></progress></div>
-            <div class="card"><span class="small-label">Target Logistik</span><div class="big-num" style="color:var(--secondary)">-25%</div></div>
-            <div class="card"><span class="small-label">Total Stok</span><div class="big-num" id="dash-total-stok">0 kg</div></div>
-        </div>
-        <div class="grid" style="grid-template-columns: 1.5fr 1fr;">
-            <div class="card"><h3>Trend Inventori</h3><canvas id="inventoryChart" height="150"></canvas></div>
-            <div class="card"><h3>Daftar Customer</h3><div id="dash-cust-list"></div></div>
-        </div>
-    </div>
-
-    <div id="stok" class="page">
-        <h1>Update Inventori</h1>
-        <div class="card">
-            <input type="number" id="in-hidup" placeholder="Tambah Stok Hidup (kg)">
-            <input type="number" id="in-kering" placeholder="Tambah Stok Kering (kg)">
-            <button onclick="addStokFisik()">Update ke Cloud</button>
-        </div>
-    </div>
-
-    <div id="logistik" class="page">
-        <h1>Green Logistics</h1>
-        <div class="card">
-            <input type="text" id="h-nama" placeholder="Nama Hotel">
-            <input type="number" id="h-limbah" placeholder="Limbah (kg)">
-            <input type="number" id="h-jarak" placeholder="Jarak (km)">
-            <button onclick="addHotel()">Simpan Logistik</button>
-        </div>
-        <div class="card"><table><thead><tr><th>Hotel</th><th>Limbah</th><th>Jarak</th><th>Status</th></tr></thead><tbody id="tabel-hotel"></tbody></table></div>
-    </div>
-
-    <div id="kontrak" class="page">
-        <h1>Smart Contract</h1>
-        <div class="card">
-            <div class="grid">
-                <input type="text" id="k-nama" placeholder="Customer">
-                <select id="k-tipe"><option value="Hidup">Hidup</option><option value="Kering">Kering</option></select>
-                <input type="number" id="k-vol" placeholder="Volume (kg)">
-                <input type="number" id="k-harga" placeholder="Harga">
-                <input type="date" id="k-tgl">
-            </div>
-            <button onclick="addKontrak()">Kunci Kontrak</button>
-        </div>
-        <div class="card"><table><thead><tr><th>Customer</th><th>Produk</th><th>Tempo</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="tabel-kontrak"></tbody></table></div>
-    </div>
-</div>
-
 <script>
-    // 1. Konfigurasi Firebase (Data Anda)
+    // 1. Konfigurasi Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyDHpfHchBQ4VlSktHQAEee6aMAkrjNGmA4",
         authDomain: "greenmaggot-7149e.firebaseapp.com",
@@ -122,9 +14,9 @@
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
-    // Menggunakan referensi maggot_v9 sesuai screenshot Anda
     const dbRef = firebase.database().ref('maggot_v9');
 
+    // Data Default
     let db = { stokH: 0, stokK: 0, hotels: [], contracts: [], history: [0,0,0,0,0] };
     let isInitialLoad = true;
 
@@ -132,13 +24,20 @@
     dbRef.on('value', (s) => {
         const val = s.val();
         if(val) { 
-            db = val; 
+            // Pastikan jika folder baru belum ada di cloud, web tidak error
+            db = {
+                stokH: val.stokH || 0,
+                stokK: val.stokK || 0,
+                hotels: val.hotels || [],
+                contracts: val.contracts || [],
+                history: val.history || [0,0,0,0,0]
+            };
             isInitialLoad = false;
             renderAll(); 
             if(document.getElementById('dashboard').classList.contains('active')) initChart(); 
         } else if (isInitialLoad) {
             isInitialLoad = false;
-            save(); // Buat struktur awal jika kosong
+            save(); 
         }
     });
 
@@ -156,6 +55,7 @@
         renderAll();
     }
 
+    // FUNGSI UPDATE STOK
     function addStokFisik() {
         const h = parseFloat(document.getElementById('in-hidup').value) || 0;
         const k = parseFloat(document.getElementById('in-kering').value) || 0;
@@ -163,30 +63,59 @@
         db.stokK += k;
         db.history.push(db.stokH + db.stokK);
         save();
-        Swal.fire('Berhasil', 'Data terupdate di Cloud.', 'success');
-        document.getElementById('in-hidup').value=''; document.getElementById('in-kering').value='';
+        Swal.fire('Berhasil', 'Data stok terupdate di Cloud.', 'success');
+        document.getElementById('in-hidup').value=''; 
+        document.getElementById('in-kering').value='';
     }
 
+    // FUNGSI UPDATE LOGISTIK
     function addHotel() {
-        const n = document.getElementById('h-nama').value, l = parseFloat(document.getElementById('h-limbah').value) || 0, j = document.getElementById('h-jarak').value;
-        if(n && l) { db.hotels.push({n, l, j}); save(); }
+        const n = document.getElementById('h-nama').value;
+        const l = parseFloat(document.getElementById('h-limbah').value) || 0;
+        const j = document.getElementById('h-jarak').value;
+        
+        if(n && l) { 
+            if(!db.hotels) db.hotels = []; // Proteksi jika array kosong
+            db.hotels.push({n, l, j}); 
+            save(); 
+            Swal.fire('Tersimpan', 'Data Logistik telah masuk ke Cloud', 'success');
+            document.getElementById('h-nama').value = '';
+            document.getElementById('h-limbah').value = '';
+            document.getElementById('h-jarak').value = '';
+        } else {
+            Swal.fire('Error', 'Nama dan Jumlah Limbah harus diisi', 'error');
+        }
     }
 
+    // FUNGSI UPDATE KONTRAK
     function addKontrak() {
-        const n = document.getElementById('k-nama').value, t = document.getElementById('k-tipe').value, v = parseFloat(document.getElementById('k-vol').value) || 0, h = parseFloat(document.getElementById('k-harga').value) || 0, d = document.getElementById('k-tgl').value;
-        if((t === "Hidup" && v > db.stokH) || (t === "Kering" && v > db.stokK)) return Swal.fire('Gagal', 'Stok tidak cukup', 'error');
+        const n = document.getElementById('k-nama').value;
+        const t = document.getElementById('k-tipe').value;
+        const v = parseFloat(document.getElementById('k-vol').value) || 0;
+        const h = parseFloat(document.getElementById('k-harga').value) || 0;
+        const d = document.getElementById('k-tgl').value;
+
+        if((t === "Hidup" && v > db.stokH) || (t === "Kering" && v > db.stokK)) {
+            return Swal.fire('Gagal', 'Stok di Cloud tidak mencukupi!', 'error');
+        }
+
         if(n && v && h && d) {
+            if(!db.contracts) db.contracts = []; // Proteksi jika array kosong
             if(t === "Hidup") db.stokH -= v; else db.stokK -= v;
             db.contracts.push({n, t, v, h, d, s: 'Belum Lunas'});
             db.history.push(db.stokH + db.stokK);
-            save();
-            Swal.fire('Kontrak Dibuat', 'Stok otomatis terpotong.', 'success');
+            save(); 
+            Swal.fire('Kontrak Dikunci', 'Data tersinkron ke semua perangkat.', 'success');
+        } else {
+            Swal.fire('Error', 'Semua kolom kontrak harus diisi', 'error');
         }
     }
 
     function renderAll() {
         const today = new Date().toISOString().split('T')[0];
-        let totalL = 0; if(db.hotels) db.hotels.forEach(h => totalL += h.l);
+        let totalL = 0; 
+        if(db.hotels) db.hotels.forEach(h => totalL += h.l);
+        
         document.getElementById('dash-limbah').innerText = `${totalL} / 500 kg`;
         document.getElementById('limbah-bar').value = totalL;
         document.getElementById('dash-total-stok').innerText = (db.stokH + db.stokK) + ' kg';
@@ -202,13 +131,19 @@
         }
         document.getElementById('dash-cust-list').innerHTML = cHtml;
         const alertBox = document.getElementById('urgent-alert');
-        if(overdueCount > 0) { alertBox.style.display = 'block'; alertBox.innerHTML = `⚠️ PERINGATAN: ${overdueCount} Kontrak Melewati Jatuh Tempo!`; } 
-        else alertBox.style.display = 'none';
+        if(overdueCount > 0) { 
+            alertBox.style.display = 'block'; 
+            alertBox.innerHTML = `⚠️ PERINGATAN: ${overdueCount} Kontrak Melewati Jatuh Tempo!`; 
+        } else {
+            alertBox.style.display = 'none';
+        }
 
-        let hT = ''; if(db.hotels) db.hotels.forEach(h => hT += `<tr><td>${h.n}</td><td>${h.l}kg</td><td>${h.j}km</td><td><span class="badge bg-paid">Low Carbon</span></td></tr>`);
+        let hT = ''; 
+        if(db.hotels) db.hotels.forEach(h => hT += `<tr><td>${h.n}</td><td>${h.l}kg</td><td>${h.j}km</td><td><span class="badge bg-paid">Low Carbon</span></td></tr>`);
         document.getElementById('tabel-hotel').innerHTML = hT;
 
-        let kT = ''; if(db.contracts) {
+        let kT = ''; 
+        if(db.contracts) {
             db.contracts.forEach((k, i) => {
                 let isO = k.d < today && k.s === 'Belum Lunas';
                 let cls = isO ? 'bg-overdue' : (k.s === 'Lunas' ? 'bg-paid' : 'bg-pending');
@@ -222,8 +157,11 @@
     function toggleS(i) { db.contracts[i].s = db.contracts[i].s === 'Lunas' ? 'Belum Lunas' : 'Lunas'; save(); }
     function delK(i) { db.contracts.splice(i, 1); save(); }
     function confirmReset() { 
-        Swal.fire({title:'Reset Data Cloud?', icon:'warning', showCancelButton:true}).then(r => { 
-            if(r.isConfirmed) dbRef.set({stokH:0,stokK:0,hotels:[],contracts:[],history:[0,0,0,0,0]}); 
+        Swal.fire({title:'Reset Data Cloud?', text: 'Semua data akan dihapus permanen!', icon:'warning', showCancelButton:true}).then(r => { 
+            if(r.isConfirmed) {
+                db = {stokH:0,stokK:0,hotels:[],contracts:[],history:[0,0,0,0,0]};
+                dbRef.set(db).then(() => location.reload());
+            }
         }); 
     }
     
@@ -238,5 +176,3 @@
     }
     window.onload = () => renderAll();
 </script>
-</body>
-</html>
