@@ -3,157 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maggot pak Joko</title>
+    <title>Maggot Pak Joko | Pakan Protein Tinggi Semarang</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
-        header { background-color: #4CAF50; color: white; text-align: center; padding: 20px; }
-        section { padding: 20px; max-width: 800px; margin: 0 auto; }
-        h2 { color: #4CAF50; }
-        ul { list-style-type: disc; margin-left: 20px; }
-        .gallery { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .gallery img { width: 200px; height: 150px; object-fit: cover; border: 1px solid #ddd; }
-        .order-btn { background-color: #25D366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; }
-        .order-btn:hover { background-color: #128C7E; }
-        footer { text-align: center; padding: 10px; background-color: #333; color: white; }
+        :root {
+            --primary-green: #2d6a4f;
+            --accent-green: #40916c;
+            --light-bg: #f8fdfa;
+            --whatsapp-color: #25D366;
+            --dark: #1b4332;
+            --star-color: #ffcc00; /* Warna Kuning Bintang */
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: #ffffff; color: #333; 
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR SHORTCUTS - GLASSMORPISM */
+        .nav-shortcuts {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .nav-shortcuts button {
+            background: white;
+            cursor: pointer;
+            color: var(--primary-green);
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 10px 18px;
+            border: 2px solid var(--primary-green);
+            border-radius: 50px;
+            transition: var(--transition);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .nav-shortcuts button:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(45, 106, 79, 0.2);
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 80px 20px; }
+
+        header { 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://6982f1d6759690a16cb815dd.imgix.net/kering%20prosses/Gemini_Generated_Image_u96l92u96l92u96l%20(1).png');
+            background-size: cover; background-position: center;
+            color: white; text-align: center; padding: 140px 20px;
+            clip-path: ellipse(150% 100% at 50% 0%);
+        }
+
+        h2 { color: var(--primary-green); text-align: center; font-size: 2.4rem; margin-bottom: 40px; }
+
+        .grid-products { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+        .product-card { 
+            background: white;
+            padding: 40px; 
+            border-radius: 24px; 
+            text-align: center;
+            border: 1px solid #f0f0f0;
+            transition: var(--transition);
+        }
+        .product-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--accent-green);
+        }
+
+        /* SMOOTH SLIDER TESTIMONI */
+        .testimonial-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 25px;
+            padding: 30px 10px;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+        }
+        .testimonial-slider::-webkit-scrollbar { display: none; }
+        
+        .testimonial-card {
+            min-width: 320px;
+            background: white; padding: 35px; border-radius: 24px;
+            scroll-snap-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            transition: var(--transition);
+        }
+
+        /* Update Bintang & Komentar Miring */
+        .stars { 
+            color: var(--star-color); 
+            font-size: 1.2rem; 
+            margin-bottom: 15px; 
+        }
+        .testimonial-card p {
+            font-style: italic; /* Teks miring */
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* FAQ ACCORDION */
+        .faq-item { background: white; margin-bottom: 12px; border-radius: 16px; border: 1px solid #eee; transition: var(--transition); }
+        .faq-question { padding: 20px 25px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .faq-answer { 
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 25px; color: #666; 
+        }
+        .faq-item.active { border-color: var(--primary-green); background: var(--light-bg); }
+        .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 20px; }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(8, 28, 21, 0.9);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .modal.show { display: block; opacity: 1; }
+        .modal-content {
+            background: white; margin: 5vh auto; padding: 40px;
+            width: 90%; max-width: 700px; border-radius: 30px;
+            transform: scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal.show .modal-content { transform: scale(1); }
+
+        .btn {
+            background-color: var(--whatsapp-color); color: white;
+            padding: 20px 45px; text-decoration: none; border-radius: 50px;
+            display: inline-block; font-weight: 700; border: none; cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+        }
+        .btn:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 15px 30px rgba(37, 211, 102, 0.4); }
+
+        footer { background: var(--dark); color: white; text-align: center; padding: 60px 20px; }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.2rem; }
+            .nav-shortcuts { padding: 10px; gap: 8px; }
+            .nav-shortcuts button { padding: 8px 12px; font-size: 0.65rem; }
+        }
     </style>
 </head>
 <body>
 
+    <div class="nav-shortcuts">
+        <button onclick="openModal('modalGaleri')">📸 GALERI</button>
+        <button onclick="openModal('modalLokasi')">📍 LOKASI</button>
+        <button onclick="openModal('modalOrder')">🛒 PESAN CEPAT</button>
+    </div>
+
     <header>
-        <h1>MAGGOT PAK JOKO</h1>
-        <p>peternak Maggot terkenal di semarang</p>
-        <a href="https://wa.me/6287718963929?text=Halo,%20saya%20ingin%20pesan%20maggot%20dari%20Green-Maggot.%20Detail:%20[isi%20detail%20pesanan]" class="order-btn">Hubungi Kami via WhatsApp</a>
+        <div data-aos="zoom-out" data-aos-duration="1500">
+            <h1 style="letter-spacing: -1px;">MAGGOT PAK JOKO</h1>
+            <p style="opacity: 0.9; font-weight: 300;">Pakan Organik Premium Untuk Ternak Masa Depan</p>
+        </div>
     </header>
 
-    <section id="visi">
-        <h2>🐛 Apa Itu Maggot??</h2>
-        <p>Maggot adalah larva lalat Black Soldier Fly (BSF) yang dibudidayakan secara khusus menggunakan limbah organik. Jangan salah paham—ini bukan belatung kotor. Maggot BSF justru higienis, tidak bau, dan sangat kaya nutrisi.
-
-Dalam waktu singkat, maggot mampu mengubah sisa makanan menjadi sumber protein berkualitas tinggi.</p>
-    </section>
-
-   <section id="gallery">
-    <h2>Galeri Maggot</h2>
-    <p>Lihat berbagai jenis maggot yang kami produksi. Klik gambar untuk zoom.</p>
-
-    <div class="gallery">
-
-        <!-- Maggot basah -->
-        <img src="https://6982f1d6759690a16cb815dd.imgix.net/maggot%20basah/Gemini_Generated_Image_wxzanuwxzanuwxza%20(1).png"
-        alt="Maggot Basah" onclick="window.open(this.src)">
-
-        <!-- Maggot kering -->
-        <img src="https://6982f1d6759690a16cb815dd.imgix.net/maggot%20kering/unnamed.jpg"
-        alt="Maggot Kering" onclick="window.open(this.src)">
-
-        <!-- Budidaya maggot -->
-        <img src="https://6982f1d6759690a16cb815dd.imgix.net/kering%20prosses/Gemini_Generated_Image_u96l92u96l92u96l%20(1).png"
-        alt="Budidaya Maggot" onclick="window.open(this.src)">
-
-    </div>
-
-</section>
-
-
-    <section id="pilar">
-   <section class="product-sales">
-    <h2>Premium BSF Maggot: Nutrisi Alami, Hasil Ternak Maksimal!</h2>
-    <p class="lead">Solusi pakan berkelanjutan dengan protein tinggi untuk pertumbuhan hewan ternak yang lebih cepat dan sehat.</p>
-
-    <div class="product-benefit">
-        <h3>Mengapa Memilih Maggot Kami?</h3>
-        <ul>
-            <li><strong>Protein Super (40-45%):</strong> Mempercepat pertumbuhan masa otot pada ikan (Lele, Nila, Koi) dan unggas.</li>
-            <li><strong>Asam Amino Lengkap:</strong> Meningkatkan sistem imun hewan, sehingga ternak Anda lebih tahan terhadap penyakit.</li>
-            <li><strong>100% Organik:</strong> Dibudidayakan dengan pengawasan ketat menggunakan limbah organik pilihan, bebas bahan kimia berbahaya.</li>
-            <li><strong>Hemat Biaya Pakan:</strong> Alternatif terbaik untuk mengurangi ketergantungan pada pakan pabrikan yang mahal tanpa menurunkan kualitas nutrisi.</li>
-        </ul>
-    </div>
-
-    <div class="product-variants">
-        <h3>Pilihan Produk Kami</h3>
-        <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
-            <tr style="background-color: #f2f2f2;">
-                <th style="padding: 10px;">Jenis Produk</th>
-                <th style="padding: 10px;">Keunggulan</th>
-                <th style="padding: 10px;">Cocok Untuk</th>
-            </tr>
-            <tr>
-                <td style="padding: 10px;"><strong>Maggot Fresh (Segar)</strong></td>
-                <td style="padding: 10px;">Sangat disukai hewan karena tekstur yang hidup dan memicu nafsu makan.</td>
-                <td style="padding: 10px;">Ikan konsumsi, bebek, dan ayam.</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px;"><strong>Dried Maggot (Kering)</strong></td>
-                <td style="padding: 10px;"><strong>Tahan hingga 6 bulan</strong>, praktis disimpan, dan nutrisi tetap terjaga.</td>
-                <td style="padding: 10px;">Ikan hias (Koi, Arwana), burung kicau, dan reptil.</td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="order-notice" style="margin-top: 20px; padding: 15px; background-color: #e8f5e9; border-left: 5px solid #2e7d32;">
-        <h3>🚚 Pengiriman Cepat & Aman</h3>
-        <p>Berkat sistem <strong>Green Logistics</strong> kami, pesanan Anda akan dikirim melalui rute tercepat untuk memastikan kesegaran produk sampai di tangan Anda. Kami melayani pengiriman area Semarang dan seluruh Indonesia.</p>
-    </div>
-
-    <div style="text-align: center; margin-top: 30px;">
-        <p style="font-size: 1.2em; font-weight: bold;">Dapatkan Harga Khusus untuk Pembelian Grosir!</p>
-        <a href="https://wa.me/6287718963929?text=Halo,%20saya%20ingin%20memesan%20produk%20maggot" style="background-color: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Pesan Sekarang via WhatsApp</a>
-    </div>
-</section>
-    <<section id="price" style="padding: 40px 20px; background-color: #f9f9f9; border-radius: 10px;">
-    <h2 style="text-align: center; color: #2e7d32; margin-bottom: 30px;">Daftar Harga Produk Maggot</h2>
-    
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-        
-        <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; width: 250px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h3 style="color: #333;">Maggot Fresh</h3>
-            <p style="font-size: 24px; font-weight: bold; color: #2e7d32;">Rp 7.000 <span style="font-size: 14px; color: #666;">/ kg</span></p>
-            <hr>
-            <ul style="list-style: none; padding: 0; font-size: 14px; color: #555; text-align: left;">
-                <li>✅ 100% Organik</li>
-                <li>✅ Kondisi Segar & Hidup</li>
-                <li>✅ Protein Tinggi</li>
-            </ul>
+    <div class="container">
+        <h2 data-aos="fade-up">Pilihan Produk</h2>
+        <div class="grid-products">
+            <div class="product-card" data-aos="fade-up" data-aos-delay="100">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🐛</div>
+                <h3>Maggot Fresh</h3>
+                <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 7.000 <small>/kg</small></p>
+            </div>
+            <div class="product-card" data-aos="fade-up" data-aos-delay="200" style="border: 2px solid var(--primary-green);">
+                <div style="font-size: 3rem; margin-bottom: 10px;">☀️</div>
+                <h3>Dried Maggot</h3>
+                <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 15.000 <small>/100gr</small></p>
+            </div>
+            <div class="product-card" data-aos="fade-up" data-aos-delay="300">
+                <div style="font-size: 3rem; margin-bottom: 10px;">⚗️</div>
+                <h3>Tepung Maggot</h3>
+                <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 65.000 <small>/kg</small></p>
+            </div>
         </div>
-
-        <div style="background: white; padding: 20px; border: 2px solid #2e7d32; border-radius: 8px; width: 250px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative;">
-            <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #2e7d32; color: white; padding: 2px 10px; border-radius: 10px; font-size: 12px;">Paling Laris</span>
-            <h3 style="color: #333;">Maggot Kering</h3>
-            <p style="font-size: 24px; font-weight: bold; color: #2e7d32;">Rp 15.000 <span style="font-size: 14px; color: #666;">/ 100gr</span></p>
-            <hr>
-            <ul style="list-style: none; padding: 0; font-size: 14px; color: #555; text-align: left;">
-                <li>✅ Tahan hingga 6 Bulan</li>
-                <li>✅ Kemasan Eksklusif</li>
-                <li>✅ Bisa Kirim Se-Indonesia</li>
-            </ul>
-        </div>
-
-        <div style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; width: 250px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h3 style="color: #333;">Tepung Maggot</h3>
-            <p style="font-size: 24px; font-weight: bold; color: #2e7d32;">Rp 65.000 <span style="font-size: 14px; color: #666;">/ kg</span></p>
-            <hr>
-            <ul style="list-style: none; padding: 0; font-size: 14px; color: #555; text-align: left;">
-                <li>✅ Mudah Dicampur Pakan</li>
-                <li>✅ Nutrisi Terkonsentrasi</li>
-                <li>✅ Untuk Industri/Peternak</li>
-            </ul>
-        </div>
-
     </div>
 
-    <div style="text-align: center; margin-top: 40px;">
-        <p style="font-style: italic; color: #777;">*Dapatkan harga khusus untuk pemesanan di atas 50kg.</p>
-        <a href="https://wa.me/6287718963929?text=Halo,%20saya%20ingin%20memesan%20produk%20maggot" 
-           style="background-color: #25d366; color: white; padding: 15px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block; transition: 0.3s;">
-           Pesan Sekarang via WhatsApp
-        </a>
+    <div style="background: var(--light-bg); padding: 100px 0; overflow: hidden;">
+        <div class="container">
+            <h2 data-aos="fade-up">Apa Kata Mereka?</h2>
+            <div class="testimonial-slider" data-aos="fade-left">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Koi saya jadi lebih lincah dan warnanya makin tajam."</p>
+                    <strong>— Budi Santoso</strong>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Respon Pak Joko sangat ramah, pakan lele jadi hemat. Sangat terbantu sekali!"</p>
+                    <strong>— H. Mulyono</strong>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Produk bersih, tidak bau, pengiriman kilat! Maggot keringnya kualitas super."</p>
+                    <strong>— Sari Putri</strong>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Ayam bangkok saya jadi lebih sehat dan bulunya mengkilap setelah rutin pakai tepung maggot."</p>
+                    <strong>— Pak De Bowo</strong>
+                </div>
+            </div>
+        </div>
     </div>
-</section>
+
+    <div class="container">
+        <h2 data-aos="fade-up">Tanya Jawab (FAQ)</h2>
+        <div class="faq-container">
+            <div class="faq-item" data-aos="fade-up">
+                <div class="faq-question">Apakah melayani pengiriman luar kota? <span>▼</span></div>
+                <div class="faq-answer">Ya, kami mengirimkan produk maggot kering dan tepung ke seluruh wilayah Indonesia melalui kurir ekspedisi.</div>
+            </div>
+            <div class="faq-item" data-aos="fade-up">
+                <div class="faq-question">Berapa minimal pemesanan? <span>▼</span></div>
+                <div class="faq-answer">Untuk Maggot Fresh minimal 5kg (Area Semarang), untuk produk kering minimal 1kg.</div>
+            </div>
+             <div class="faq-item" data-aos="fade-up">
+                <div class="faq-question">Bagaimana cara menyimpannya? <span>▼</span></div>
+                <div class="faq-answer">Cukup simpan di wadah kedap udara dan hindari sinar matahari langsung agar awet hingga 6 bulan.</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; padding: 120px 20px; background: linear-gradient(white, var(--light-bg));">
+        <h2 data-aos="zoom-in">Siap Tingkatkan Kualitas Ternak?</h2>
+        <p style="margin-bottom: 40px;">Konsultasi pakan gratis langsung dengan Pak Joko.</p>
+        <a href="https://wa.me/6287718963929" class="btn" data-aos="pulse">HUBUNGI WHATSAPP KAMI</a>
+    </div>
+
+    <div id="modalGaleri" class="modal" onclick="closeModal('modalGaleri')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 style="margin-top:0;">Galeri Produksi</h2>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <img src="https://6982f1d6759690a16cb815dd.imgix.net/maggot%20basah/Gemini_Generated_Image_wxzanuwxzanuwxza%20(1).png" style="width:100%; border-radius:20px;">
+                <img src="https://6982f1d6759690a16cb815dd.imgix.net/maggot%20kering/unnamed.jpg" style="width:100%; border-radius:20px;">
+            </div>
+        </div>
+    </div>
+
+    <div id="modalLokasi" class="modal" onclick="closeModal('modalLokasi')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 style="margin-top:0;">Lokasi Kami</h2>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.882414844336!2d110.457186!3d-7.023154!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwMDEnMjMuNCJTIDExMMKwMjcnMjUuOSJF!5e0!3m2!1sid!2sid!4v1700000000000" width="100%" height="400" style="border:0; border-radius:20px;" allowfullscreen=""></iframe>
+        </div>
+    </div>
+
+    <div id="modalOrder" class="modal" onclick="closeModal('modalOrder')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Pemesanan Cepat</h2>
+            <div style="display:flex; flex-direction:column; gap:15px;">
+                <input type="text" id="nama" placeholder="Nama Anda" style="padding:15px; border-radius:12px; border:1px solid #ddd;">
+                <select id="prod" style="padding:15px; border-radius:12px; border:1px solid #ddd;">
+                    <option>Maggot Fresh</option>
+                    <option>Dried Maggot</option>
+                    <option>Tepung Maggot</option>
+                </select>
+                <input type="number" id="jml" placeholder="Jumlah (kg)" style="padding:15px; border-radius:12px; border:1px solid #ddd;">
+                <button class="btn" onclick="kirimWA()">Kirim Sekarang</button>
+            </div>
+        </div>
+    </div>
 
     <footer>
-        <p>&copy; 2026 Green-Maggot. Hubungi kami untuk konsultasi.</p>
+        <p>© 2026 <strong>Green-Maggot Pak Joko</strong> | Semarang</p>
     </footer>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, once: true });
+
+        function openModal(id) {
+            const m = document.getElementById(id);
+            m.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            m.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                const item = q.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+
+        function kirimWA() {
+            let n = document.getElementById("nama").value;
+            let p = document.getElementById("prod").value;
+            let j = document.getElementById("jml").value;
+            if(!n || !j) return alert("Mohon diisi lengkap");
+            window.open(`https://wa.me/6287718963929?text=Halo Pak Joko, saya ${n} mau pesan ${p} sebanyak ${j}kg`,"_blank");
+        }
+    </script>
 </body>
 </html>
