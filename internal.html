@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Maggot v7.0 | Automated Debt Reminder</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #1e8449; --secondary: #27ae60; --bg: #f4f7f6; --text: #2c3e50; --danger: #e74c3c; --warning: #f39c12; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; background: var(--bg); color: var(--text); }
+        .sidebar { width: 260px; background: var(--primary); color: white; height: 100vh; position: fixed; padding: 30px 20px; z-index: 100; }
+        .sidebar h2 { margin-bottom: 40px; font-size: 20px; text-align: center; }
+        .nav-link { padding: 15px; margin: 5px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .nav-link:hover, .nav-link.active { background: var(--secondary); }
+        .main { flex: 1; margin-left: 260px; padding: 40px; width: calc(100% - 260px); }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        .card { background: white; padding: 25px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .big-num { font-size: 24px; font-weight: bold; color: var(--primary); }
+        input, select, button { padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; width: 100%; }
+        button { background: var(--secondary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-del { background: #ff4757; width: auto; padding: 5px 10px; font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; }
+        .badge { padding: 4px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .bg-paid { background: #d4efdf; color: #1e8449; }
+        .bg-pending { background: #fcf3cf; color: #b7950b; }
+        .bg-overdue { background: #fadbd8; color: #e74c3c; animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.5; } }
+        .alert-box { background: #fadbd8; border-left: 5px solid #e74c3c; padding: 15px; margin-bottom: 20px; border-radius: 8px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>🌱 GREEN MAGGOT</h2>
+    <div class="nav-link active" onclick="showPage(event, 'dashboard')">📊 Dashboard</div>
+    <div class="nav-link" onclick="showPage(event, 'stok')">📦 Manajemen Stok</div>
+    <div class="nav-link" onclick="showPage(event, 'logistik')">🚚 Green Logistics</div>
+    <div class="nav-link" onclick="showPage(event, 'kontrak')">📑 Smart Contract</div>
+    <button onclick="confirmReset()" style="background: transparent; border: 1px solid #ff9a9a; color: #ff9a9a; margin-top: 40px;">⚠️ Reset Data</button>
+</div>
+
+<div class="main">
+    <div id="dashboard" class="page active">
+        <h1>Dashboard Monitoring</h1>
+        
+        <div id="urgent-alert" class="alert-box">
+            <b id="alert-msg"></b>
+        </div>
+
+        <div class="grid" style="margin-top: 20px;">
+            <div class="card"><h3>Stok Hidup</h3><div class="big-num" id="dash-hidup">0 kg</div></div>
+            <div class="card"><h3>Piutang Aktif</h3><div class="big-num" id="dash-piutang" style="color:var(--danger)">0</div></div>
+            <div class="card"><h3>Total Revenue</h3><div class="big-num" id="dash-nilai">Rp 0</div></div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1.5fr 1fr;">
+            <div class="card">
+                <h3>Trend Inventory</h3>
+                <canvas id="inventoryChart" height="150"></canvas>
+            </div>
+            <div class="card">
+                <h3>Customer & Jatuh Tempo</h3>
+                <div id="dash-cust-list" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="stok" class="page">
+        <h1>Update Stok Hasil Panen</h1>
+        <div class="card">
+            <label>Tambah Maggot Hidup (kg)</label><input type="number" id="in-hidup" placeholder="0">
+            <label>Tambah Maggot Kering (kg)</label><input type="number" id="in-kering" placeholder="0">
+            <button onclick="addStokFisik()">Update Inventory</button>
+        </div>
+    </div>
+
+    <div id="logistik" class="page">
+        <h1>Green Logistics</h1>
+        <div class="card">
+            <h3>Input Jarak & Limbah Hotel</h3>
+            <div class="grid">
+                <input type="text" id="h-nama" placeholder="Nama Hotel">
+                <input type="number" id="h-limbah" placeholder="Limbah (kg)">
+                <input type="number" id="h-jarak" placeholder="Jarak (km)">
+            </div>
+            <button onclick="addHotel()">Simpan Data</button>
+        </div>
+        <div class="card">
+            <table id="tabel-hotel">
+                <thead><tr><th>Nama Hotel</th><th>Limbah</th><th>Jarak</th><th>Efisiensi</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="kontrak" class="page">
+        <h1>Smart Contract</h1>
+        <div class="card">
+            <h3>Buat Pesanan Baru</h3>
+            <div class="grid">
+                <input type="text" id="k-nama" placeholder="Nama Customer">
+                <select id="k-tipe"><option value="Hidup">Hidup</option><option value="Kering">Kering</option></select>
+                <input type="number" id="k-vol" placeholder="Volume (kg)">
+                <input type="number" id="k-harga" placeholder="Harga/kg">
+                <input type="date" id="k-tgl">
+            </div>
+            <button onclick="addKontrak()">Kunci & Potong Stok</button>
+        </div>
+        <div class="card">
+            <table>
+                <thead><tr><th>Customer</th><th>Produk</th><th>Jatuh Tempo</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody id="tabel-kontrak"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('maggot_v7')) || {
+        stokH: 0, stokK: 0, hotels: [], contracts: [], history: [0, 0, 0, 0, 0]
+    };
+
+    function showPage(e, id) {
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'dashboard') initChart();
+        renderAll();
+    }
+
+    function addStokFisik() {
+        db.stokH += parseFloat(document.getElementById('in-hidup').value) || 0;
+        db.stokK += parseFloat(document.getElementById('in-kering').value) || 0;
+        db.history.push(db.stokH + db.stokK);
+        save(); renderAll();
+        Swal.fire('Sukses', 'Stok berhasil ditambah', 'success');
+    }
+
+    function addHotel() {
+        const n = document.getElementById('h-nama').value;
+        const l = document.getElementById('h-limbah').value;
+        const j = document.getElementById('h-jarak').value;
+        if(n && l && j) { db.hotels.push({n, l, j}); save(); renderAll(); }
+    }
+
+    function addKontrak() {
+        const n = document.getElementById('k-nama').value;
+        const t = document.getElementById('k-tipe').value;
+        const v = parseFloat(document.getElementById('k-vol').value) || 0;
+        const h = parseFloat(document.getElementById('k-harga').value) || 0;
+        const d = document.getElementById('k-tgl').value;
+
+        if((t === "Hidup" && v > db.stokH) || (t === "Kering" && v > db.stokK)) {
+            return Swal.fire('Gagal', 'Stok tidak mencukupi!', 'error');
+        }
+
+        if(n && v && h && d) {
+            if(t === "Hidup") db.stokH -= v; else db.stokK -= v;
+            db.contracts.push({n, t, v, h, d, s: 'Belum Lunas'});
+            db.history.push(db.stokH + db.stokK);
+            save(); renderAll();
+            Swal.fire('Berhasil', 'Pesanan masuk & stok terpotong.', 'success');
+        }
+    }
+
+    function renderAll() {
+        document.getElementById('dash-hidup').innerText = db.stokH + ' kg';
+        let rev = 0, pCount = 0, overdueList = [], cListHtml = '';
+        const today = new Date().toISOString().split('T')[0];
+
+        db.contracts.forEach((k, i) => {
+            const isOverdue = k.d < today && k.s === 'Belum Lunas';
+            if(k.s === 'Belum Lunas') pCount++;
+            if(isOverdue) overdueList.push(k.n);
+            rev += (k.v * k.h);
+
+            let statusBadge = isOverdue ? 'bg-overdue' : (k.s === 'Lunas' ? 'bg-paid' : 'bg-pending');
+            let statusText = isOverdue ? 'OVERDUE' : k.s;
+
+            cListHtml += `<div style="padding:10px; border-bottom:1px solid #eee; font-size:12px;">
+                <b>${k.n}</b> <span class="badge ${statusBadge}" style="float:right">${statusText}</span><br>
+                <small>Tempo: ${k.d}</small>
+            </div>`;
+        });
+
+        // Tampilkan Alert Jika ada Overdue
+        const alertBox = document.getElementById('urgent-alert');
+        if(overdueList.length > 0) {
+            alertBox.style.display = 'block';
+            document.getElementById('alert-msg').innerText = `⚠️ PERINGATAN: ${overdueList.length} Customer melewati jatuh tempo pembayaran!`;
+        } else { alertBox.style.display = 'none'; }
+
+        document.getElementById('dash-piutang').innerText = pCount;
+        document.getElementById('dash-nilai').innerText = 'Rp ' + rev.toLocaleString();
+        document.getElementById('dash-cust-list').innerHTML = cListHtml;
+
+        // Render Tables
+        let kHtml = '';
+        db.contracts.forEach((k, i) => {
+            const isOverdue = k.d < today && k.s === 'Belum Lunas';
+            let cls = isOverdue ? 'bg-overdue' : (k.s === 'Lunas' ? 'bg-paid' : 'bg-pending');
+            kHtml += `<tr style="${isOverdue ? 'background:#fff5f5' : ''}">
+                <td>${k.n}</td><td>${k.t}</td><td>${k.d}</td>
+                <td><span class="badge ${cls}">${isOverdue ? 'OVERDUE' : k.s}</span></td>
+                <td><button onclick="toggleS(${i})" class="btn-del" style="background:#2ecc71">Status</button>
+                <button onclick="delKontrak(${i})" class="btn-del">Hapus</button></td>
+            </tr>`;
+        });
+        document.getElementById('tabel-kontrak').innerHTML = kHtml;
+
+        let hHtml = '';
+        db.hotels.forEach(h => {
+            hHtml += `<tr><td>${h.n}</td><td>${h.l}kg</td><td>${h.j}km</td><td>${h.j < 5 ? 'Efisien' : 'Jauh'}</td></tr>`;
+        });
+        document.getElementById('tabel-hotel').querySelector('tbody').innerHTML = hHtml;
+    }
+
+    function toggleS(i) { db.contracts[i].s = db.contracts[i].s === 'Lunas' ? 'Belum Lunas' : 'Lunas'; save(); renderAll(); }
+    function delKontrak(i) { db.contracts.splice(i, 1); save(); renderAll(); }
+    function save() { localStorage.setItem('maggot_v7', JSON.stringify(db)); }
+    function confirmReset() {
+        Swal.fire({ title: 'Hapus Semua?', icon: 'warning', showCancelButton: true }).then((r) => { if(r.isConfirmed){ localStorage.clear(); location.reload(); }});
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('inventoryChart');
+        if(window.chartObj) window.chartObj.destroy();
+        window.chartObj = new Chart(ctx, {
+            type: 'line',
+            data: { labels: ['T-4', 'T-3', 'T-2', 'T-1', 'Now'], datasets: [{ label: 'Stok Total', data: db.history.slice(-5), borderColor: '#1e8449', tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    window.onload = () => { renderAll(); initChart(); };
+</script>
+</body>
+</html>
