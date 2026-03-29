@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Maggot v8.0 | Pro Edition</title>
+    <title>Green Maggot v8.0 | Pro Edition (Cloud Sync)</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <style>
         :root { --primary: #1e8449; --secondary: #27ae60; --bg: #f4f7f6; --text: #2c3e50; --danger: #e74c3c; --warning: #f39c12; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
@@ -55,10 +59,7 @@
 <div class="main">
     <div id="dashboard" class="page active">
         <h1>Dashboard Monitoring</h1>
-        
-        <div id="urgent-alert" class="alert-box">
-            <b id="alert-msg"></b>
-        </div>
+        <div id="urgent-alert" class="alert-box"><b id="alert-msg"></b></div>
 
         <div class="grid" style="margin-top: 20px;">
             <div class="card"><h3>Stok Hidup</h3><div class="big-num" id="dash-hidup">0 kg</div></div>
@@ -83,14 +84,8 @@
         <h1>Update Stok Hasil Panen</h1>
         <div class="card">
             <div class="grid">
-                <div>
-                    <label>Tambah Maggot Hidup (kg)</label>
-                    <input type="number" id="in-hidup" placeholder="0" min="0">
-                </div>
-                <div>
-                    <label>Tambah Maggot Kering (kg)</label>
-                    <input type="number" id="in-kering" placeholder="0" min="0">
-                </div>
+                <div><label>Tambah Maggot Hidup (kg)</label><input type="number" id="in-hidup" placeholder="0"></div>
+                <div><label>Tambah Maggot Kering (kg)</label><input type="number" id="in-kering" placeholder="0"></div>
             </div>
             <button onclick="addStokFisik()">Update Inventory</button>
         </div>
@@ -132,7 +127,7 @@
             <button onclick="addKontrak()">Kunci Transaksi & Potong Stok</button>
         </div>
         <div class="card">
-            <table style="width: 100%">
+            <table>
                 <thead><tr><th>Customer</th><th>Produk</th><th>Vol</th><th>Jatuh Tempo</th><th>Status</th><th>Aksi</th></tr></thead>
                 <tbody id="tabel-kontrak"></tbody>
             </table>
@@ -141,33 +136,56 @@
 </div>
 
 <script>
-    // Initialize Database
-    let db = JSON.parse(localStorage.getItem('maggot_v8')) || {
-        stokH: 0, stokK: 0, hotels: [], contracts: [], history: [0, 0, 0, 0, 0]
+    // 1. KONFIGURASI FIREBASE (GANTI DENGAN PUNYA ANDA)
+    const firebaseConfig = {
+        apiKey: "AIzaSy...",
+        authDomain: "project-id.firebaseapp.com",
+        databaseURL: "https://project-id-default-rtdb.firebaseio.com",
+        projectId: "project-id",
+        storageBucket: "project-id.appspot.com",
+        messagingSenderId: "...",
+        appId: "..."
     };
 
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const dbRef = database.ref('maggot_v8');
+
+    let db = { stokH: 0, stokK: 0, hotels: [], contracts: [], history: [0] };
+
+    // 2. SINKRONISASI CLOUD
+    dbRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            db = data;
+            if (!db.history) db.history = [0];
+            if (!db.hotels) db.hotels = [];
+            if (!db.contracts) db.contracts = [];
+            renderAll();
+            initChart();
+        }
+    });
+
+    function save() { dbRef.set(db); }
+
+    // 3. LOGIKA APLIKASI
     function showPage(e, id) {
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         e.currentTarget.classList.add('active');
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(id === 'dashboard') initChart();
-        renderAll();
     }
 
     function addStokFisik() {
         const h = parseFloat(document.getElementById('in-hidup').value) || 0;
         const k = parseFloat(document.getElementById('in-kering').value) || 0;
-        
-        db.stokH += h;
-        db.stokK += k;
+        db.stokH += h; db.stokK += k;
         db.history.push(db.stokH + db.stokK);
-        
+        save();
         document.getElementById('in-hidup').value = '';
         document.getElementById('in-kering').value = '';
-        
-        save(); renderAll();
-        Swal.fire('Stok Terupdate', `Berhasil menambah ${h}kg hidup & ${k}kg kering`, 'success');
+        Swal.fire('Update', 'Stok berhasil disinkronkan ke Cloud', 'success');
     }
 
     function addHotel() {
@@ -176,10 +194,10 @@
         const j = document.getElementById('h-jarak').value;
         if(n && l && j) { 
             db.hotels.push({n, l, j}); 
+            save();
             document.getElementById('h-nama').value = '';
             document.getElementById('h-limbah').value = '';
             document.getElementById('h-jarak').value = '';
-            save(); renderAll(); 
         }
     }
 
@@ -190,112 +208,58 @@
         const h = parseFloat(document.getElementById('k-harga').value) || 0;
         const d = document.getElementById('k-tgl').value;
 
-        if(!n || !v || !h || !d) return Swal.fire('Error', 'Lengkapi semua data!', 'error');
-
-        // Validasi Stok
-        if(t === "Hidup" && v > db.stokH) return Swal.fire('Gagal', 'Stok Maggot Hidup tidak cukup!', 'error');
-        if(t === "Kering" && v > db.stokK) return Swal.fire('Gagal', 'Stok Maggot Kering tidak cukup!', 'error');
+        if(!n || !v || !h || !d) return Swal.fire('Error', 'Data tidak lengkap', 'error');
+        if(t === "Hidup" && v > db.stokH) return Swal.fire('Gagal', 'Stok Hidup Kurang', 'error');
+        if(t === "Kering" && v > db.stokK) return Swal.fire('Gagal', 'Stok Kering Kurang', 'error');
 
         if(t === "Hidup") db.stokH -= v; else db.stokK -= v;
-        
         db.contracts.push({n, t, v, h, d, s: 'Belum Lunas'});
         db.history.push(db.stokH + db.stokK);
-        save(); renderAll();
-        Swal.fire('Berhasil', 'Pesanan disimpan & stok otomatis terpotong.', 'success');
+        save();
+        Swal.fire('Berhasil', 'Transaksi tercatat di semua perangkat', 'success');
     }
 
     function renderAll() {
-        // Render Dashboard Stats
-        document.getElementById('dash-hidup').innerText = db.stokH.toFixed(1) + ' kg';
-        document.getElementById('dash-kering').innerText = db.stokK.toFixed(1) + ' kg';
+        document.getElementById('dash-hidup').innerText = (db.stokH || 0).toFixed(1) + ' kg';
+        document.getElementById('dash-kering').innerText = (db.stokK || 0).toFixed(1) + ' kg';
         
-        let rev = 0, pCount = 0, overdueList = [], cListHtml = '';
+        let rev = 0, pCount = 0;
         const today = new Date().toISOString().split('T')[0];
+        let kHtml = '', cListHtml = '';
 
-        // Render Tabel Kontrak & Dashboard List
-        let kHtml = '';
-        db.contracts.forEach((k, i) => {
+        (db.contracts || []).forEach((k, i) => {
             const isOverdue = k.d < today && k.s === 'Belum Lunas';
             if(k.s === 'Belum Lunas') pCount++;
             rev += (k.v * k.h);
-
             let statusBadge = isOverdue ? 'bg-overdue' : (k.s === 'Lunas' ? 'bg-paid' : 'bg-pending');
-            let statusText = isOverdue ? 'OVERDUE' : k.s;
-
+            
             cListHtml += `<div style="padding:10px; border-bottom:1px solid #eee; font-size:12px;">
-                <b>${k.n}</b> <span class="badge ${statusBadge}" style="float:right">${statusText}</span><br>
-                <small>Produk: ${k.t} | Rp ${(k.v*k.h).toLocaleString()}</small>
-            </div>`;
+                <b>${k.n}</b> <span class="badge ${statusBadge}" style="float:right">${isOverdue ? 'OVERDUE' : k.s}</span><br>
+                <small>Rp ${(k.v*k.h).toLocaleString()}</small></div>`;
 
             kHtml += `<tr style="${isOverdue ? 'background:#fff5f5' : ''}">
                 <td>${k.n}</td><td>${k.t}</td><td>${k.v}kg</td><td>${k.d}</td>
-                <td><span class="badge ${statusBadge}">${statusText}</span></td>
-                <td>
-                    <button onclick="toggleS(${i})" class="btn-del" style="background:#2ecc71">Status</button>
-                    <button onclick="delKontrak(${i})" class="btn-del">Hapus</button>
-                </td>
-            </tr>`;
+                <td><span class="badge ${statusBadge}">${isOverdue ? 'OVERDUE' : k.s}</span></td>
+                <td><button onclick="toggleS(${i})" class="btn-del" style="background:#2ecc71">Status</button>
+                <button onclick="delKontrak(${i})" class="btn-del">Hapus</button></td></tr>`;
         });
-
-        // Alarm Overdue
-        const alertBox = document.getElementById('urgent-alert');
-        const overdueCount = db.contracts.filter(k => k.d < today && k.s === 'Belum Lunas').length;
-        if(overdueCount > 0) {
-            alertBox.style.display = 'block';
-            document.getElementById('alert-msg').innerText = `⚠️ PERINGATAN: Ada ${overdueCount} tagihan yang melewati jatuh tempo!`;
-        } else { alertBox.style.display = 'none'; }
 
         document.getElementById('dash-piutang').innerText = pCount;
         document.getElementById('dash-nilai').innerText = 'Rp ' + rev.toLocaleString();
-        document.getElementById('dash-cust-list').innerHTML = cListHtml || '<p style="font-size:12px;color:grey;padding:10px;">Belum ada kontrak</p>';
+        document.getElementById('dash-cust-list').innerHTML = cListHtml || '<p style="padding:10px">Kosong</p>';
         document.getElementById('tabel-kontrak').innerHTML = kHtml;
 
-        // Render Tabel Logistik
         let hHtml = '';
-        db.hotels.forEach((h, i) => {
-            hHtml += `<tr>
-                <td>${h.n}</td><td>${h.l}kg</td><td>${h.j}km</td>
-                <td><span class="badge" style="background:#e8f5e9;color:#2e7d32">${h.j < 5 ? 'Efisien' : 'Jauh'}</span></td>
-                <td><button onclick="delHotel(${i})" class="btn-del">Hapus</button></td>
-            </tr>`;
+        (db.hotels || []).forEach((h, i) => {
+            hHtml += `<tr><td>${h.n}</td><td>${h.l}kg</td><td>${h.j}km</td><td>${h.j < 5 ? 'Efisien' : 'Jauh'}</td>
+            <td><button onclick="delHotel(${i})" class="btn-del">Hapus</button></td></tr>`;
         });
         document.getElementById('tabel-hotel').querySelector('tbody').innerHTML = hHtml;
     }
 
-    function toggleS(i) { db.contracts[i].s = db.contracts[i].s === 'Lunas' ? 'Belum Lunas' : 'Lunas'; save(); renderAll(); }
-    function delKontrak(i) { 
-        if(confirm('Hapus transaksi ini? Stok tidak akan kembali otomatis.')) {
-            db.contracts.splice(i, 1); save(); renderAll(); 
-        }
-    }
-    function delHotel(i) { db.hotels.splice(i, 1); save(); renderAll(); }
-    
-    function save() { localStorage.setItem('maggot_v8', JSON.stringify(db)); }
-
-    async function confirmReset() {
-        const { value: password } = await Swal.fire({
-            title: 'Otorisasi Admin',
-            input: 'password',
-            inputLabel: 'Masukkan Password untuk Reset',
-            inputPlaceholder: 'Password...',
-            showCancelButton: true
-        });
-
-        if (password === 'admin123') {
-            Swal.fire({
-                title: 'Hapus Permanen?',
-                text: "Semua data stok dan kontrak akan hilang!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Ya, Reset Semua'
-            }).then((r) => {
-                if(r.isConfirmed){ localStorage.removeItem('maggot_v8'); location.reload(); }
-            });
-        } else if(password) {
-            Swal.fire('Gagal', 'Password Salah!', 'error');
-        }
-    }
+    function toggleS(i) { db.contracts[i].s = db.contracts[i].s === 'Lunas' ? 'Belum Lunas' : 'Lunas'; save(); }
+    function delKontrak(i) { if(confirm('Hapus?')){ db.contracts.splice(i, 1); save(); } }
+    function delHotel(i) { db.hotels.splice(i, 1); save(); }
 
     function initChart() {
         const ctx = document.getElementById('inventoryChart');
@@ -303,21 +267,17 @@
         window.chartObj = new Chart(ctx, {
             type: 'line',
             data: { 
-                labels: db.history.map((_, i) => 'T-'+ (db.history.length - 1 - i)).slice(-7), 
-                datasets: [{ 
-                    label: 'Stok Total (kg)', 
-                    data: db.history.slice(-7), 
-                    borderColor: '#1e8449', 
-                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                    fill: true,
-                    tension: 0.4 
-                }] 
+                labels: (db.history || []).map((_, i) => 'T-'+i).slice(-7), 
+                datasets: [{ label: 'Stok Total', data: (db.history || []).slice(-7), borderColor: '#1e8449', tension: 0.4 }] 
             },
             options: { responsive: true, maintainAspectRatio: false }
         });
     }
 
-    window.onload = () => { renderAll(); initChart(); };
+    async function confirmReset() {
+        const { value: pass } = await Swal.fire({ title: 'Password Admin', input: 'password' });
+        if (pass === 'admin123') { dbRef.remove(); location.reload(); }
+    }
 </script>
 </body>
 </html>
