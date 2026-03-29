@@ -12,7 +12,7 @@
         body { display: flex; background: var(--bg); color: var(--text); min-height: 100vh; }
         .sidebar { width: 260px; background: var(--primary); color: white; height: 100vh; position: fixed; padding: 30px 20px; z-index: 100; }
         .sidebar h2 { margin-bottom: 40px; font-size: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px; }
-        .nav-link { padding: 15px; margin: 5px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .nav-link { padding: 15px; margin: 5px 0; border-radius: 10px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; }
         .nav-link:hover, .nav-link.active { background: var(--secondary); }
         .main { flex: 1; margin-left: 260px; padding: 40px; width: calc(100% - 260px); }
         .page { display: none; }
@@ -44,6 +44,11 @@
     <div class="nav-link" onclick="showPage(event, 'stok')">📦 Manajemen Stok</div>
     <div class="nav-link" onclick="showPage(event, 'logistik')">🚚 Green Logistics</div>
     <div class="nav-link" onclick="showPage(event, 'kontrak')">📑 Smart Contract</div>
+    
+    <a href="https://kayy3.github.io/maggot-website/" target="_blank" class="nav-link" style="margin-top: 20px; border: 1px dashed rgba(255,255,255,0.5);">
+        🌐 Website Utama
+    </a>
+
     <button onclick="confirmReset()" style="background: transparent; border: 1px solid #ff9a9a; color: #ff9a9a; margin-top: 40px;">⚠️ Reset Sistem</button>
 </div>
 
