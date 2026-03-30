@@ -17,48 +17,32 @@
             --light-bg: #f8fdfa;
             --whatsapp-color: #25D366;
             --dark: #1b4332;
-            --danger: #d90429; /* Merah untuk stok menipis */
+            --danger: #d90429;
             --star-color: #ffcc00;
             --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; padding: 0; 
-            background-color: #ffffff; color: #333; 
-            overflow-x: hidden;
-        }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #ffffff; color: #333; overflow-x: hidden; }
 
         /* NAVBAR */
         .nav-shortcuts {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: center;
-            gap: 12px;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            padding: 15px 0; position: sticky; top: 0; z-index: 999;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.05); display: flex; justify-content: center; gap: 12px;
         }
 
         .nav-shortcuts button {
             background: white; cursor: pointer; color: var(--primary-green);
             font-weight: 700; font-size: 0.75rem; padding: 10px 18px;
-            border: 2px solid var(--primary-green); border-radius: 50px;
-            transition: var(--transition);
+            border: 2px solid var(--primary-green); border-radius: 50px; transition: var(--transition);
         }
 
-        .nav-shortcuts button:hover {
-            background: var(--primary-green); color: white; transform: translateY(-3px);
-        }
+        .nav-shortcuts button:hover { background: var(--primary-green); color: white; transform: translateY(-3px); }
 
         .container { max-width: 1100px; margin: 0 auto; padding: 80px 20px; }
 
         header { 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                        url('https://image2url.com/r2/default/images/1774797501915-cfda5d4d-cbb6-4c04-ac20-ee71ebfff3ed.blob');
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://image2url.com/r2/default/images/1774797501915-cfda5d4d-cbb6-4c04-ac20-ee71ebfff3ed.blob');
             background-size: cover; background-position: center;
             color: white; text-align: center; padding: 140px 20px;
             clip-path: ellipse(150% 100% at 50% 0%);
@@ -66,7 +50,7 @@
 
         h2 { color: var(--primary-green); text-align: center; font-size: 2.4rem; margin-bottom: 40px; }
 
-        /* PRODUCT CARDS */
+        /* PRODUCTS */
         .grid-products { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
         .product-card { 
             background: white; padding: 40px; border-radius: 24px; text-align: center;
@@ -74,28 +58,15 @@
         }
         .product-card:hover { transform: translateY(-12px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
 
-        /* STOK STYLE */
-        .stock-tag {
-            margin-top: 15px; font-size: 0.9rem; color: #666;
-            background: #f1f8f5; padding: 8px 15px; border-radius: 10px; display: inline-block;
-        }
+        /* STOCK TAGS */
+        .stock-tag { margin-top: 15px; font-size: 0.9rem; color: #666; background: #f1f8f5; padding: 8px 15px; border-radius: 10px; display: inline-block; }
         .stock-value { font-weight: 800; color: var(--primary-green); }
-        .low-stock { color: var(--danger) !important; animation: pulse-red 2s infinite; }
-
-        @keyframes pulse-red {
-            0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; }
-        }
+        .low-stock { color: var(--danger) !important; font-weight: 900; }
 
         /* TESTIMONI */
-        .testimonial-slider {
-            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-            gap: 25px; padding: 30px 10px; scrollbar-width: none;
-        }
+        .testimonial-slider { display: flex; overflow-x: auto; gap: 25px; padding: 30px 10px; scrollbar-width: none; }
         .testimonial-slider::-webkit-scrollbar { display: none; }
-        .testimonial-card {
-            min-width: 320px; background: white; padding: 35px; border-radius: 24px;
-            scroll-snap-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        }
+        .testimonial-card { min-width: 320px; background: white; padding: 35px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
         .stars { color: var(--star-color); font-size: 1.2rem; margin-bottom: 15px; }
 
         /* FAQ */
@@ -105,22 +76,13 @@
         .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 20px; }
 
         /* MODAL */
-        .modal {
-            display: none; position: fixed; z-index: 2000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(8, 28, 21, 0.9); backdrop-filter: blur(8px);
-        }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(8, 28, 21, 0.9); backdrop-filter: blur(8px); }
         .modal.show { display: block; }
-        .modal-content {
-            background: white; margin: 5vh auto; padding: 40px;
-            width: 90%; max-width: 700px; border-radius: 30px;
-        }
+        .modal-content { background: white; margin: 10vh auto; padding: 40px; width: 90%; max-width: 500px; border-radius: 30px; position: relative; }
 
-        .btn {
-            background-color: var(--whatsapp-color); color: white;
-            padding: 20px 45px; text-decoration: none; border-radius: 50px;
-            display: inline-block; font-weight: 700; border: none; cursor: pointer;
-        }
+        .form-input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #ddd; font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        
+        .btn { background-color: var(--whatsapp-color); color: white; padding: 18px 40px; text-decoration: none; border-radius: 50px; display: inline-block; font-weight: 700; border: none; cursor: pointer; width: 100%; }
 
         footer { background: var(--dark); color: white; text-align: center; padding: 60px 20px; }
     </style>
@@ -141,7 +103,7 @@
     </header>
 
     <div class="container">
-        <h2 data-aos="fade-up">Pilihan Produk</h2>
+        <h2>Pilihan Produk</h2>
         <div class="grid-products">
             <div class="product-card" data-aos="fade-up">
                 <div style="font-size: 3rem;">🐛</div>
@@ -149,7 +111,7 @@
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 7.000 <small>/kg</small></p>
                 <div class="stock-tag">Stok: <span id="stok-hidup" class="stock-value">Memuat...</span></div>
             </div>
-            <div class="product-card" data-aos="fade-up" data-aos-delay="100" style="border: 2px solid var(--primary-green);">
+            <div class="product-card" data-aos="fade-up" data-aos-delay="100">
                 <div style="font-size: 3rem;">☀️</div>
                 <h3>Dried Maggot</h3>
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 15.000 <small>/100gr</small></p>
@@ -164,10 +126,10 @@
         </div>
     </div>
 
-    <div style="background: var(--light-bg); padding: 100px 0;">
+    <div style="background: var(--light-bg); padding: 80px 0;">
         <div class="container">
-            <h2 data-aos="fade-up">Apa Kata Mereka?</h2>
-            <div class="testimonial-slider" data-aos="fade-left">
+            <h2>Apa Kata Mereka?</h2>
+            <div class="testimonial-slider">
                 <div class="testimonial-card">
                     <div class="stars">★★★★★</div>
                     <p>"Koi saya jadi lebih lincah dan warnanya makin tajam."</p>
@@ -175,42 +137,54 @@
                 </div>
                 <div class="testimonial-card">
                     <div class="stars">★★★★★</div>
-                    <p>"Respon Pak Joko sangat ramah, pakan lele jadi hemat. Sangat terbantu sekali!"</p>
+                    <p>"Respon Pak Joko sangat ramah, pakan lele jadi hemat."</p>
                     <strong>— H. Mulyono</strong>
                 </div>
                 <div class="testimonial-card">
                     <div class="stars">★★★★★</div>
-                    <p>"Produk bersih, tidak bau, pengiriman kilat! Maggot keringnya kualitas super."</p>
-                    <strong>— Sari Putri</strong>
+                    <p>"Maggot keringnya kualitas super, ayam saya makin sehat."</p>
+                    <strong>— Pak De Bowo</strong>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <h2 data-aos="fade-up">Tanya Jawab (FAQ)</h2>
-        <div class="faq-container">
-            <div class="faq-item" data-aos="fade-up">
-                <div class="faq-question">Apakah melayani pengiriman luar kota? <span>▼</span></div>
-                <div class="faq-answer">Ya, kami mengirimkan produk maggot kering dan tepung ke seluruh wilayah Indonesia melalui kurir ekspedisi.</div>
-            </div>
-            <div class="faq-item" data-aos="fade-up">
-                <div class="faq-question">Berapa minimal pemesanan? <span>▼</span></div>
-                <div class="faq-answer">Untuk Maggot Fresh minimal 5kg (Area Semarang), untuk produk kering minimal 1kg.</div>
-            </div>
+        <h2>Tanya Jawab (FAQ)</h2>
+        <div class="faq-item">
+            <div class="faq-question">Apakah melayani pengiriman luar kota? <span>▼</span></div>
+            <div class="faq-answer">Ya, kami mengirimkan produk maggot kering dan tepung ke seluruh Indonesia.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Berapa minimal pemesanan? <span>▼</span></div>
+            <div class="faq-answer">Maggot Fresh minimal 5kg (Semarang), produk kering minimal 1kg.</div>
         </div>
     </div>
 
-    <div style="text-align: center; padding: 100px 20px;">
-        <a href="https://wa.me/6287718963929" class="btn">HUBUNGI WHATSAPP KAMI</a>
+    <div style="text-align: center; padding: 80px 20px;">
+        <button onclick="openModal('modalOrder')" class="btn" style="width: auto;">PESAN SEKARANG</button>
+    </div>
+
+    <div id="modalOrder" class="modal" onclick="closeModal('modalOrder')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 style="margin-top:0;">Pesan Cepat</h2>
+            <input type="text" id="nama" class="form-input" placeholder="Nama Lengkap">
+            <select id="prod" class="form-input">
+                <option value="Maggot Fresh">Maggot Fresh (Basah)</option>
+                <option value="Dried Maggot">Dried Maggot (Kering)</option>
+                <option value="Tepung Maggot">Tepung Maggot</option>
+            </select>
+            <input type="number" id="jml" class="form-input" placeholder="Jumlah (kg/bungkus)">
+            <button class="btn" onclick="kirimWA()">Kirim Pesanan (WA)</button>
+        </div>
     </div>
 
     <div id="modalGaleri" class="modal" onclick="closeModal('modalGaleri')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2>Galeri Produksi</h2>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                <img src="https://image2url.com/r2/default/images/1774798585294-4b639b81-7b05-4734-a90a-7fa48e1668a3.blob" style="width:100%; border-radius:15px;">
-                <img src="https://image2url.com/r2/default/images/1774798575228-1db6a94e-6b9f-4f02-bb96-ac30044dedd0.blob" style="width:100%; border-radius:15px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <img src="https://image2url.com/r2/default/images/1774798585294-4b639b81-7b05-4734-a90a-7fa48e1668a3.blob" style="width:100%; border-radius:10px;">
+                <img src="https://image2url.com/r2/default/images/1774798575228-1db6a94e-6b9f-4f02-bb96-ac30044dedd0.blob" style="width:100%; border-radius:10px;">
             </div>
         </div>
     </div>
@@ -218,30 +192,17 @@
     <div id="modalLokasi" class="modal" onclick="closeModal('modalLokasi')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2>Lokasi Kami</h2>
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126743.58285437812!2d110.3470242!3d-7.01574!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b495346067b%3A0x6917637951a896!2sSemarang%2C%20Kota%20Semarang%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1711812345678" width="100%" height="350" style="border:0; border-radius:15px;" allowfullscreen=""></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126743.58290458638!2d110.3470241!3d-7.0091456!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b4952da7f51%3A0x4027a763a1074a0!2sSemarang%2C%20Kota%20Semarang%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1711812345678" width="100%" height="300" style="border:0; border-radius:15px;" allowfullscreen=""></iframe>
         </div>
     </div>
 
-    <div id="modalOrder" class="modal" onclick="closeModal('modalOrder')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2>Pemesanan Cepat</h2>
-            <div style="display:flex; flex-direction:column; gap:15px;">
-                <input type="text" id="nama" placeholder="Nama Anda" style="padding:15px; border-radius:10px; border:1px solid #ddd;">
-                <input type="number" id="jml" placeholder="Jumlah (kg)" style="padding:15px; border-radius:10px; border:1px solid #ddd;">
-                <button class="btn" onclick="kirimWA()">Pesan Via WhatsApp</button>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>© 2026 <strong>Green-Maggot Pak Joko</strong> | Semarang</p>
-    </footer>
+    <footer><p>© 2026 Green-Maggot Pak Joko | Semarang</p></footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init();
-
-        // --- FIREBASE LOGIC ---
+        
+        // FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyChqOp23LDS_T5E0NSjF2PvCwZ-aku00ns",
             authDomain: "databasemaggot.firebaseapp.com",
@@ -259,30 +220,26 @@
             if (data) {
                 const hEl = document.getElementById('stok-hidup');
                 const kEl = document.getElementById('stok-kering');
-                
                 hEl.innerText = data.stokH + " kg";
                 kEl.innerText = data.stokK + " kg";
-
-                // Batas Merah 25kg
                 if(data.stokH < 25) hEl.classList.add('low-stock'); else hEl.classList.remove('low-stock');
                 if(data.stokK < 25) kEl.classList.add('low-stock'); else kEl.classList.remove('low-stock');
             }
         });
 
-        // --- UI LOGIC ---
         function openModal(id) { document.getElementById(id).classList.add('show'); }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         document.querySelectorAll('.faq-question').forEach(q => {
-            q.addEventListener('click', () => {
-                q.parentElement.classList.toggle('active');
-            });
+            q.addEventListener('click', () => q.parentElement.classList.toggle('active'));
         });
 
         function kirimWA() {
             let n = document.getElementById("nama").value;
+            let p = document.getElementById("prod").value;
             let j = document.getElementById("jml").value;
-            window.open(`https://wa.me/6287718963929?text=Halo Pak Joko, saya ${n} ingin pesan maggot ${j}kg`,"_blank");
+            if(!n || !j) return alert("Mohon lengkapi Nama dan Jumlah");
+            window.open(`https://wa.me/6287718963929?text=Halo Pak Joko, saya ${n} ingin pesan ${p} sebanyak ${j} unit/kg.`,"_blank");
         }
     </script>
 </body>
