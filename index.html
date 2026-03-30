@@ -258,8 +258,8 @@
                 sKering.innerText = (data.stokK || 0).toFixed(1) + ' kg';
 
                 // Alert visual jika stok menipis
-                sHidup.style.color = data.stokH < 15 ? '#ef4444' : '#2d6a4f';
-                sKering.style.color = data.stokK < 20 ? '#ef4444' : '#2d6a4f';
+                sHidup.style.color = data.stokH < 5 ? '#ef4444' : '#2d6a4f';
+                sKering.style.color = data.stokK < 2 ? '#ef4444' : '#2d6a4f';
             }
         });
 
