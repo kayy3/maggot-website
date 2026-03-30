@@ -3,73 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Maggot Management v12</title>
+    <title>Green Maggot Mobile Sync</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --primary: #2d6a4f; --danger: #d00000; --bg: #f4f9f6; --white: #ffffff; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        :root { --primary: #1e8449; --danger: #ef4444; --bg: #f8fafc; --white: #ffffff; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #1e293b; }
         
         /* Navigasi Bawah */
-        .tab-bar { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; }
-        .tab-item { border: none; background: none; text-align: center; color: #aaa; flex: 1; cursor: pointer; }
+        .tab-bar { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; border-top: 1px solid #e2e8f0; }
+        .tab-item { border: none; background: none; text-align: center; color: #94a3b8; flex: 1; cursor: pointer; }
         .tab-item.active { color: var(--primary); font-weight: 800; }
         .tab-icon { display: block; font-size: 1.5rem; }
 
-        .container { display: none; padding: 20px; padding-bottom: 100px; animation: fadeIn 0.3s; }
+        .container { display: none; padding: 20px; padding-bottom: 100px; animation: fadeIn 0.3s ease-out; }
         .container.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Card & Stats */
-        .card { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-box { background: #eef7f2; padding: 12px; border-radius: 15px; text-align: center; }
-        .val { font-size: 1.1rem; font-weight: 800; color: var(--primary); display: block; }
-
-        /* Keuangan Style */
-        .display-harga { font-size: 2rem; font-weight: 800; color: var(--primary); text-align: center; margin: 15px 0; background: #fff; padding: 15px; border-radius: 15px; }
-        .grid-kat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .kat-opt { padding: 10px; border: 1px solid #eee; border-radius: 10px; font-size: 0.75rem; text-align: center; cursor: pointer; background: white; }
-        .kat-opt.active { background: var(--primary); color: white; }
+        .card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-box { background: #ebf5ee; padding: 15px; border-radius: 15px; text-align: center; }
+        .val { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block; }
         
-        /* Tabel Customer */
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { text-align: left; color: #888; padding: 8px 0; }
-        td { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .status-hutang { color: var(--danger); font-weight: bold; }
-        .status-lunas { color: var(--primary); font-weight: bold; }
-
+        /* Keuangan Style */
+        .display-harga { font-size: 2.2rem; font-weight: 800; color: var(--primary); text-align: center; margin: 15px 0; background: #fff; padding: 20px; border-radius: 20px; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); }
+        .grid-kat { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .kat-opt { padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.8rem; text-align: center; cursor: pointer; background: white; font-weight: 600; }
+        .kat-opt.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
         /* Keypad */
-        .grid-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; }
-        .key { background: white; border: 1px solid #eee; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 1.2rem; }
+        .grid-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 320px; margin: 0 auto; }
+        .key { background: white; border: 1px solid #e2e8f0; padding: 18px; border-radius: 15px; font-weight: 700; font-size: 1.3rem; transition: 0.2s; }
+        .key:active { background: #f1f5f9; transform: scale(0.95); }
+
+        /* Customer List */
+        .cust-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .bg-pending { background: #fef3c7; color: #b45309; }
+        .bg-paid { background: #dcfce7; color: #15803d; }
     </style>
 </head>
 <body>
 
     <div id="home" class="container active">
-        <h2>📊 Dashboard Bisnis</h2>
+        <h1 style="font-size: 24px; margin-bottom: 20px;">📊 Bisnis Overview</h1>
         <div class="card" style="background: var(--primary); color: white;">
-            <p style="margin:0; opacity:0.8;">Total Saldo Saat Ini</p>
-            <h1 id="total-saldo">Rp 0</h1>
+            <p style="margin:0; opacity:0.8; font-size: 0.9rem;">Total Revenue (Omzet)</p>
+            <h1 id="total-revenue" style="font-size: 2rem; margin: 5px 0;">Rp 0</h1>
         </div>
         <div class="card">
             <h3>Pemasukan vs Pengeluaran</h3>
-            <canvas id="chartLaba"></canvas>
+            <div style="height: 200px;"><canvas id="chartLaba"></canvas></div>
+        </div>
+        <div class="card">
+            <h3>Trend Stok Gabungan (kg)</h3>
+            <div style="height: 180px;"><canvas id="chartTrend"></canvas></div>
         </div>
     </div>
 
     <div id="uang" class="container">
-        <h2>💰 Catat Transaksi</h2>
+        <h1>💰 Catat Uang</h1>
         <div class="display-harga" id="screen">Rp 0</div>
         
-        <p style="font-weight: 700; font-size: 0.9rem;">Pilih Kategori:</p>
         <div class="grid-kat">
-            <div class="kat-opt active" onclick="setKat('Jual Maggot', 'masuk', this)">💰 Jual Maggot</div>
-            <div class="kat-opt" onclick="setKat('Beli Bibit', 'keluar', this)">🪱 Beli Bibit</div>
-            <div class="kat-opt" onclick="setKat('Pakan/Limbah', 'keluar', this)">🍲 Pakan</div>
-            <div class="kat-opt" onclick="setKat('Logistik', 'keluar', this)">🚚 Logistik</div>
-            <div class="kat-opt" onclick="setKat('Lainnya', 'keluar', this)">✨ Lainnya</div>
+            <div class="kat-opt active" onclick="setTipe('masuk', this)">📈 Pemasukan</div>
+            <div class="kat-opt" onclick="setTipe('keluar', this)">📉 Pengeluaran</div>
         </div>
 
         <div class="grid-keypad">
@@ -77,94 +77,137 @@
             <button class="key" onclick="press('4')">4</button><button class="key" onclick="press('5')">5</button><button class="key" onclick="press('6')">6</button>
             <button class="key" onclick="press('7')">7</button><button class="key" onclick="press('8')">8</button><button class="key" onclick="press('9')">9</button>
             <button class="key" style="color:var(--danger)" onclick="press('C')">C</button><button class="key" onclick="press('0')">0</button>
-            <button class="key" style="color:var(--primary)" onclick="simpan()">OK</button>
+            <button class="key" style="color:var(--primary)" onclick="simpanKeuangan()">OK</button>
         </div>
         
-        <h3 style="margin-top:25px;">Histori Terakhir</h3>
-        <div id="histori-list" class="card"></div>
+        <h3 style="margin-top:25px;">Histori Kontrak (Smart Contract)</h3>
+        <div id="mini-history" class="card" style="padding: 10px;"></div>
     </div>
 
     <div id="kandang" class="container">
-        <h2>📦 Manajemen Kandang</h2>
+        <h1>📦 Data Kandang</h1>
         <div class="grid-2">
-            <div class="stat-box"><span class="val" id="stok-fresh">0 kg</span><small>Fresh</small></div>
-            <div class="stat-box"><span class="val" id="stok-kering">0 kg</span><small>Kering</small></div>
+            <div class="stat-box"><span class="val" id="stok-h">0 kg</span><small>Hidup</small></div>
+            <div class="stat-box"><span class="val" id="stok-k">0 kg</span><small>Kering</small></div>
         </div>
 
         <div class="card" style="margin-top:15px;">
-            <h3>Tren Penjualan</h3>
-            <canvas id="chartJual"></canvas>
-        </div>
-
-        <div class="card">
-            <h3>Data Customer & Piutang</h3>
-            <table>
-                <thead><tr><th>Nama</th><th>Status</th><th>Tagihan</th></tr></thead>
-                <tbody id="customer-list">
-                    <tr><td>Budi S.</td><td class="status-hutang">Belum Bayar</td><td>Rp 140.000</td></tr>
-                    <tr><td>H. Mulyono</td><td class="status-lunas">Lunas</td><td>Rp 0</td></tr>
-                </tbody>
-            </table>
+            <div style="display: flex; justify-content: space-between;">
+                <h3>Piutang Customer</h3>
+                <span id="piutang-count" class="badge bg-pending" style="font-size: 14px;">0 Orang</span>
+            </div>
+            <div id="list-piutang" style="margin-top: 10px;">
+                </div>
         </div>
     </div>
 
     <div class="tab-bar">
-        <button class="tab-item active" onclick="tab('home', this)"><span class="tab-icon">🏠</span>Dashboard</button>
-        <button class="tab-item" onclick="tab('uang', this)"><span class="tab-icon">💰</span>Uang</button>
+        <button class="tab-item active" onclick="tab('home', this)"><span class="tab-icon">📊</span>Dashboard</button>
+        <button class="tab-item" onclick="tab('uang', this)"><span class="tab-icon">💰</span>Keuangan</button>
         <button class="tab-item" onclick="tab('kandang', this)"><span class="tab-icon">📦</span>Kandang</button>
     </div>
 
     <script>
-        // --- FIREBASE KONFIG (SESUAIKAN DENGAN PUNYA PAK JOKO) ---
+        // --- 1. FIREBASE CONFIG (SINKRON DENGAN WEB INTERNAL) ---
         const firebaseConfig = {
+            apiKey: "AIzaSyChqOp23LDS_T5E0NSjF2PvCwZ-aku00ns",
             databaseURL: "https://databasemaggot-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const dbRef = firebase.database().ref('maggot_v8');
 
-        // Ambil Stok Realtime
-        db.ref('maggot_v8').on('value', (snap) => {
-            const d = snap.val();
-            if(d) {
-                document.getElementById('stok-fresh').innerText = d.stokH + " kg";
-                document.getElementById('stok-kering').innerText = d.stokK + " kg";
+        let dataLocal = { stokH: 0, stokK: 0, contracts: [], history: [] };
+
+        // SINKRONISASI REAL-TIME
+        dbRef.on('value', (snap) => {
+            const data = snap.val();
+            if (data) {
+                dataLocal = data;
+                updateUI();
             }
         });
 
-        // --- LOGIKA INPUT UANG ---
-        let inputSkrg = "0";
-        let katSkrg = "Jual Maggot";
-        let tipeSkrg = "masuk";
+        function updateUI() {
+            // Update Dashboard
+            let totalRevenue = 0;
+            let piutangCount = 0;
+            let listHtml = "";
+            let miniHist = "";
 
-        function setKat(nama, tipe, el) {
-            katSkrg = nama; tipeSkrg = tipe;
+            if (dataLocal.contracts) {
+                dataLocal.contracts.forEach(k => {
+                    totalRevenue += (k.v * k.h);
+                    if (k.s === "Belum Lunas") {
+                        piutangCount++;
+                        listHtml += `<div class="cust-item">
+                            <div><b>${k.n}</b><br><small>Hutang: Rp ${(k.v*k.h).toLocaleString()}</small></div>
+                            <span class="badge bg-pending">BELUM BAYAR</span>
+                        </div>`;
+                    } else {
+                        listHtml += `<div class="cust-item">
+                            <div><b>${k.n}</b><br><small>Lunas: Rp ${(k.v*k.h).toLocaleString()}</small></div>
+                            <span class="badge bg-paid">LUNAS</span>
+                        </div>`;
+                    }
+                    miniHist += `<div style="font-size:11px; margin-bottom:5px;">✅ ${k.n} - ${k.v}kg ${k.t}</div>`;
+                });
+            }
+
+            document.getElementById('total-revenue').innerText = "Rp " + totalRevenue.toLocaleString();
+            document.getElementById('stok-h').innerText = (dataLocal.stokH || 0).toFixed(1) + " kg";
+            document.getElementById('stok-k').innerText = (dataLocal.stokK || 0).toFixed(1) + " kg";
+            document.getElementById('piutang-count').innerText = piutangCount + " Orang";
+            document.getElementById('list-piutang').innerHTML = listHtml || "<p>Tidak ada piutang.</p>";
+            document.getElementById('mini-history').innerHTML = miniHist || "Belum ada transaksi.";
+
+            updateCharts();
+        }
+
+        // --- 2. LOGIKA INPUT UANG ---
+        let inputVal = "0";
+        let tipeInput = "masuk";
+
+        function setTipe(t, el) {
+            tipeInput = t;
             document.querySelectorAll('.kat-opt').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
         }
 
         function press(k) {
-            if(k === 'C') inputSkrg = "0";
-            else inputSkrg = inputSkrg === "0" ? k : inputSkrg + k;
-            document.getElementById('screen').innerText = "Rp " + parseInt(inputSkrg).toLocaleString();
+            if(k === 'C') inputVal = "0";
+            else inputVal = inputVal === "0" ? k : inputVal + k;
+            document.getElementById('screen').innerText = "Rp " + parseInt(inputVal).toLocaleString();
         }
 
-        function simpan() {
-            const data = { ket: katSkrg, nominal: parseInt(inputSkrg), tipe: tipeSkrg, tgl: new Date().toLocaleString() };
-            db.ref('transaksi').push(data);
-            alert("Berhasil dicatat!");
-            inputSkrg = "0"; press('C');
+        function simpanKeuangan() {
+            if(inputVal === "0") return;
+            alert("Berhasil mencatat Rp " + parseInt(inputVal).toLocaleString());
+            // Catatan: Untuk input keuangan mandiri bisa ditambah ke node baru 'logs_keuangan' di firebase
+            inputVal = "0"; press('C');
         }
 
-        // --- GRAFIK ---
-        new Chart(document.getElementById('chartLaba'), {
-            type: 'pie',
-            data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [70, 30], backgroundColor: ['#2d6a4f', '#d00000'] }] }
-        });
+        // --- 3. CHARTS ---
+        let chartLaba, chartTrend;
+        function updateCharts() {
+            const ctxL = document.getElementById('chartLaba').getContext('2d');
+            if(chartLaba) chartLaba.destroy();
+            chartLaba = new Chart(ctxL, {
+                type: 'doughnut',
+                data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [80, 20], backgroundColor: ['#1e8449', '#ef4444'], borderWidth: 0 }] },
+                options: { cutout: '75%', maintainAspectRatio: false }
+            });
 
-        new Chart(document.getElementById('chartJual'), {
-            type: 'line',
-            data: { labels: ['M1', 'M2', 'M3', 'M4'], datasets: [{ label: 'Kg Terjual', data: [50, 80, 65, 90], borderColor: '#2d6a4f' }] }
-        });
+            const ctxT = document.getElementById('chartTrend').getContext('2d');
+            if(chartTrend) chartTrend.destroy();
+            chartTrend = new Chart(ctxT, {
+                type: 'line',
+                data: { 
+                    labels: (dataLocal.history || []).map((_,i) => i).slice(-7), 
+                    datasets: [{ label: 'Total Stok', data: (dataLocal.history || []).slice(-7), borderColor: '#1e8449', tension: 0.3, fill: true, backgroundColor: 'rgba(30,132,73,0.05)' }] 
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
 
         function tab(id, b) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -172,6 +215,9 @@
             document.getElementById(id).classList.add('active');
             b.classList.add('active');
         }
+
+        function init() { updateUI(); }
+        window.onload = init;
     </script>
 </body>
 </html>
