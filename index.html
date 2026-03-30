@@ -9,7 +9,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
+
     <style>
         :root {
             --primary-green: #2d6a4f;
@@ -17,12 +17,17 @@
             --light-bg: #f8fdfa;
             --whatsapp-color: #25D366;
             --dark: #1b4332;
-            --danger: #ef4444; /* Warna Merah Peringatan */
+            --danger: #d90429; /* Merah untuk stok menipis */
             --star-color: #ffcc00;
             --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
-        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #ffffff; color: #333; overflow-x: hidden; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: #ffffff; color: #333; 
+            overflow-x: hidden;
+        }
 
         /* NAVBAR */
         .nav-shortcuts {
@@ -45,37 +50,59 @@
             transition: var(--transition);
         }
 
-        .nav-shortcuts button:hover { background: var(--primary-green); color: white; transform: translateY(-3px); }
+        .nav-shortcuts button:hover {
+            background: var(--primary-green); color: white; transform: translateY(-3px);
+        }
 
-        .container { max-width: 1100px; margin: 0 auto; padding: 60px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 80px 20px; }
 
         header { 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://image2url.com/r2/default/images/1774797501915-cfda5d4d-cbb6-4c04-ac20-ee71ebfff3ed.blob');
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('https://image2url.com/r2/default/images/1774797501915-cfda5d4d-cbb6-4c04-ac20-ee71ebfff3ed.blob');
             background-size: cover; background-position: center;
-            color: white; text-align: center; padding: 120px 20px;
+            color: white; text-align: center; padding: 140px 20px;
             clip-path: ellipse(150% 100% at 50% 0%);
         }
 
-        h2 { color: var(--primary-green); text-align: center; font-size: 2.2rem; margin-bottom: 40px; }
+        h2 { color: var(--primary-green); text-align: center; font-size: 2.4rem; margin-bottom: 40px; }
 
-        /* PRODUK & STOK */
+        /* PRODUCT CARDS */
         .grid-products { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
         .product-card { 
             background: white; padding: 40px; border-radius: 24px; text-align: center;
             border: 1px solid #f0f0f0; transition: var(--transition);
         }
-        .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        .product-card:hover { transform: translateY(-12px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
 
-        .stock-info {
-            margin-top: 15px; font-size: 0.85rem; color: #666;
-            padding: 10px; background: #f1f8f5; border-radius: 12px; display: inline-block;
-            transition: background 0.3s;
+        /* STOK STYLE */
+        .stock-tag {
+            margin-top: 15px; font-size: 0.9rem; color: #666;
+            background: #f1f8f5; padding: 8px 15px; border-radius: 10px; display: inline-block;
         }
-        .stock-value { font-weight: 800; font-size: 1rem; }
-        
-        /* Class untuk stok kritis */
-        .low-stock-bg { background: #fff1f2 !important; border: 1px solid #fecaca; }
-        .low-stock-text { color: var(--danger) !important; }
+        .stock-value { font-weight: 800; color: var(--primary-green); }
+        .low-stock { color: var(--danger) !important; animation: pulse-red 2s infinite; }
+
+        @keyframes pulse-red {
+            0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; }
+        }
+
+        /* TESTIMONI */
+        .testimonial-slider {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            gap: 25px; padding: 30px 10px; scrollbar-width: none;
+        }
+        .testimonial-slider::-webkit-scrollbar { display: none; }
+        .testimonial-card {
+            min-width: 320px; background: white; padding: 35px; border-radius: 24px;
+            scroll-snap-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+        .stars { color: var(--star-color); font-size: 1.2rem; margin-bottom: 15px; }
+
+        /* FAQ */
+        .faq-item { background: white; margin-bottom: 12px; border-radius: 16px; border: 1px solid #eee; }
+        .faq-question { padding: 20px 25px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 25px; color: #666; }
+        .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 20px; }
 
         /* MODAL */
         .modal {
@@ -85,19 +112,17 @@
         }
         .modal.show { display: block; }
         .modal-content {
-            background: white; margin: 5vh auto; padding: 30px;
-            width: 90%; max-width: 650px; border-radius: 25px;
-            position: relative;
+            background: white; margin: 5vh auto; padding: 40px;
+            width: 90%; max-width: 700px; border-radius: 30px;
         }
-        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #999; }
 
         .btn {
             background-color: var(--whatsapp-color); color: white;
-            padding: 18px 40px; text-decoration: none; border-radius: 50px;
+            padding: 20px 45px; text-decoration: none; border-radius: 50px;
             display: inline-block; font-weight: 700; border: none; cursor: pointer;
         }
 
-        footer { background: var(--dark); color: white; text-align: center; padding: 40px 20px; }
+        footer { background: var(--dark); color: white; text-align: center; padding: 60px 20px; }
     </style>
 </head>
 <body>
@@ -109,47 +134,81 @@
     </div>
 
     <header>
-        <div data-aos="fade-down">
+        <div data-aos="zoom-out">
             <h1>MAGGOT PAK JOKO</h1>
             <p>Pakan Organik Premium Untuk Ternak Masa Depan</p>
         </div>
     </header>
 
     <div class="container">
-        <h2>Pilihan Produk</h2>
+        <h2 data-aos="fade-up">Pilihan Produk</h2>
         <div class="grid-products">
             <div class="product-card" data-aos="fade-up">
                 <div style="font-size: 3rem;">🐛</div>
                 <h3>Maggot Fresh</h3>
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 7.000 <small>/kg</small></p>
-                <div id="box-hidup" class="stock-info">
-                    Stok: <span id="stok-hidup" class="stock-value">Memuat...</span>
-                </div>
+                <div class="stock-tag">Stok: <span id="stok-hidup" class="stock-value">Memuat...</span></div>
             </div>
-
             <div class="product-card" data-aos="fade-up" data-aos-delay="100" style="border: 2px solid var(--primary-green);">
                 <div style="font-size: 3rem;">☀️</div>
                 <h3>Dried Maggot</h3>
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 15.000 <small>/100gr</small></p>
-                <div id="box-kering" class="stock-info">
-                    Stok: <span id="stok-kering" class="stock-value">Memuat...</span>
-                </div>
+                <div class="stock-tag">Stok: <span id="stok-kering" class="stock-value">Memuat...</span></div>
             </div>
-
             <div class="product-card" data-aos="fade-up" data-aos-delay="200">
                 <div style="font-size: 3rem;">⚗️</div>
                 <h3>Tepung Maggot</h3>
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 65.000 <small>/kg</small></p>
-                <div class="stock-info">Status: <span class="stock-value">Ready Stock</span></div>
+                <div class="stock-tag">Status: <span class="stock-value">Selalu Ready</span></div>
             </div>
         </div>
     </div>
 
+    <div style="background: var(--light-bg); padding: 100px 0;">
+        <div class="container">
+            <h2 data-aos="fade-up">Apa Kata Mereka?</h2>
+            <div class="testimonial-slider" data-aos="fade-left">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Koi saya jadi lebih lincah dan warnanya makin tajam."</p>
+                    <strong>— Budi Santoso</strong>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Respon Pak Joko sangat ramah, pakan lele jadi hemat. Sangat terbantu sekali!"</p>
+                    <strong>— H. Mulyono</strong>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Produk bersih, tidak bau, pengiriman kilat! Maggot keringnya kualitas super."</p>
+                    <strong>— Sari Putri</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 data-aos="fade-up">Tanya Jawab (FAQ)</h2>
+        <div class="faq-container">
+            <div class="faq-item" data-aos="fade-up">
+                <div class="faq-question">Apakah melayani pengiriman luar kota? <span>▼</span></div>
+                <div class="faq-answer">Ya, kami mengirimkan produk maggot kering dan tepung ke seluruh wilayah Indonesia melalui kurir ekspedisi.</div>
+            </div>
+            <div class="faq-item" data-aos="fade-up">
+                <div class="faq-question">Berapa minimal pemesanan? <span>▼</span></div>
+                <div class="faq-answer">Untuk Maggot Fresh minimal 5kg (Area Semarang), untuk produk kering minimal 1kg.</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; padding: 100px 20px;">
+        <a href="https://wa.me/6287718963929" class="btn">HUBUNGI WHATSAPP KAMI</a>
+    </div>
+
     <div id="modalGaleri" class="modal" onclick="closeModal('modalGaleri')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close-btn" onclick="closeModal('modalGaleri')">&times;</span>
             <h2>Galeri Produksi</h2>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                 <img src="https://image2url.com/r2/default/images/1774798585294-4b639b81-7b05-4734-a90a-7fa48e1668a3.blob" style="width:100%; border-radius:15px;">
                 <img src="https://image2url.com/r2/default/images/1774798575228-1db6a94e-6b9f-4f02-bb96-ac30044dedd0.blob" style="width:100%; border-radius:15px;">
             </div>
@@ -158,25 +217,18 @@
 
     <div id="modalLokasi" class="modal" onclick="closeModal('modalLokasi')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close-btn" onclick="closeModal('modalLokasi')">&times;</span>
             <h2>Lokasi Kami</h2>
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126748.56347862248!2d110.3470241!3d-7.0245522!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b4955c45b85%3A0xc3205367803730e!2sSemarang%2C%20Kota%20Semarang%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1711833000000" width="100%" height="350" style="border:0; border-radius:15px;" allowfullscreen=""></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126743.58285437812!2d110.3470242!3d-7.01574!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b495346067b%3A0x6917637951a896!2sSemarang%2C%20Kota%20Semarang%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1711812345678" width="100%" height="350" style="border:0; border-radius:15px;" allowfullscreen=""></iframe>
         </div>
     </div>
 
     <div id="modalOrder" class="modal" onclick="closeModal('modalOrder')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <span class="close-btn" onclick="closeModal('modalOrder')">&times;</span>
             <h2>Pemesanan Cepat</h2>
-            <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:15px;">
                 <input type="text" id="nama" placeholder="Nama Anda" style="padding:15px; border-radius:10px; border:1px solid #ddd;">
-                <select id="prod" style="padding:15px; border-radius:10px; border:1px solid #ddd;">
-                    <option>Maggot Fresh</option>
-                    <option>Dried Maggot</option>
-                    <option>Tepung Maggot</option>
-                </select>
                 <input type="number" id="jml" placeholder="Jumlah (kg)" style="padding:15px; border-radius:10px; border:1px solid #ddd;">
-                <button class="btn" onclick="kirimWA()">Kirim WhatsApp</button>
+                <button class="btn" onclick="kirimWA()">Pesan Via WhatsApp</button>
             </div>
         </div>
     </div>
@@ -187,9 +239,9 @@
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ duration: 800 });
+        AOS.init();
 
-        // FIREBASE CONFIG
+        // --- FIREBASE LOGIC ---
         const firebaseConfig = {
             apiKey: "AIzaSyChqOp23LDS_T5E0NSjF2PvCwZ-aku00ns",
             authDomain: "databasemaggot.firebaseapp.com",
@@ -199,60 +251,38 @@
             messagingSenderId: "895666878555",
             appId: "1:895666878555:web:37dc347ae51ab64451e77e"
         };
-
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // REAL-TIME STOCK LOGIC
         database.ref('maggot_v8').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                const hVal = data.stokH || 0;
-                const kVal = data.stokK || 0;
+                const hEl = document.getElementById('stok-hidup');
+                const kEl = document.getElementById('stok-kering');
+                
+                hEl.innerText = data.stokH + " kg";
+                kEl.innerText = data.stokK + " kg";
 
-                const hText = document.getElementById('stok-hidup');
-                const kText = document.getElementById('stok-kering');
-                const hBox = document.getElementById('box-hidup');
-                const kBox = document.getElementById('box-kering');
-
-                hText.innerText = hVal.toFixed(1) + ' kg';
-                kText.innerText = kVal.toFixed(1) + ' kg';
-
-                // BATAS MERAH 25KG
-                if(hVal < 25) {
-                    hBox.classList.add('low-stock-bg');
-                    hText.classList.add('low-stock-text');
-                } else {
-                    hBox.classList.remove('low-stock-bg');
-                    hText.classList.remove('low-stock-text');
-                }
-
-                if(kVal < 25) {
-                    kBox.classList.add('low-stock-bg');
-                    kText.classList.add('low-stock-text');
-                } else {
-                    kBox.classList.remove('low-stock-bg');
-                    kText.classList.remove('low-stock-text');
-                }
+                // Batas Merah 25kg
+                if(data.stokH < 25) hEl.classList.add('low-stock'); else hEl.classList.remove('low-stock');
+                if(data.stokK < 25) kEl.classList.add('low-stock'); else kEl.classList.remove('low-stock');
             }
         });
 
-        // MODAL FUNCTIONS
-        function openModal(id) {
-            document.getElementById(id).classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
+        // --- UI LOGIC ---
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                q.parentElement.classList.toggle('active');
+            });
+        });
 
         function kirimWA() {
             let n = document.getElementById("nama").value;
-            let p = document.getElementById("prod").value;
             let j = document.getElementById("jml").value;
-            if(!n || !j) return alert("Mohon lengkapi data");
-            window.open(`https://wa.me/6287718963929?text=Halo Pak Joko, saya ${n} ingin pesan ${p} sebanyak ${j}kg`,"_blank");
+            window.open(`https://wa.me/6287718963929?text=Halo Pak Joko, saya ${n} ingin pesan maggot ${j}kg`,"_blank");
         }
     </script>
 </body>
