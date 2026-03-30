@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Maggot Management v12</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root { --primary: #2d6a4f; --danger: #d00000; --bg: #f4f9f6; --white: #ffffff; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        
+        /* Navigasi Bawah */
+        .tab-bar { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1000; }
+        .tab-item { border: none; background: none; text-align: center; color: #aaa; flex: 1; cursor: pointer; }
+        .tab-item.active { color: var(--primary); font-weight: 800; }
+        .tab-icon { display: block; font-size: 1.5rem; }
+
+        .container { display: none; padding: 20px; padding-bottom: 100px; animation: fadeIn 0.3s; }
+        .container.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Card & Stats */
+        .card { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: #eef7f2; padding: 12px; border-radius: 15px; text-align: center; }
+        .val { font-size: 1.1rem; font-weight: 800; color: var(--primary); display: block; }
+
+        /* Keuangan Style */
+        .display-harga { font-size: 2rem; font-weight: 800; color: var(--primary); text-align: center; margin: 15px 0; background: #fff; padding: 15px; border-radius: 15px; }
+        .grid-kat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .kat-opt { padding: 10px; border: 1px solid #eee; border-radius: 10px; font-size: 0.75rem; text-align: center; cursor: pointer; background: white; }
+        .kat-opt.active { background: var(--primary); color: white; }
+        
+        /* Tabel Customer */
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { text-align: left; color: #888; padding: 8px 0; }
+        td { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .status-hutang { color: var(--danger); font-weight: bold; }
+        .status-lunas { color: var(--primary); font-weight: bold; }
+
+        /* Keypad */
+        .grid-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 320px; margin: 0 auto; }
+        .key { background: white; border: 1px solid #eee; padding: 15px; border-radius: 12px; font-weight: 700; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div id="home" class="container active">
+        <h2>📊 Dashboard Bisnis</h2>
+        <div class="card" style="background: var(--primary); color: white;">
+            <p style="margin:0; opacity:0.8;">Total Saldo Saat Ini</p>
+            <h1 id="total-saldo">Rp 0</h1>
+        </div>
+        <div class="card">
+            <h3>Pemasukan vs Pengeluaran</h3>
+            <canvas id="chartLaba"></canvas>
+        </div>
+    </div>
+
+    <div id="uang" class="container">
+        <h2>💰 Catat Transaksi</h2>
+        <div class="display-harga" id="screen">Rp 0</div>
+        
+        <p style="font-weight: 700; font-size: 0.9rem;">Pilih Kategori:</p>
+        <div class="grid-kat">
+            <div class="kat-opt active" onclick="setKat('Jual Maggot', 'masuk', this)">💰 Jual Maggot</div>
+            <div class="kat-opt" onclick="setKat('Beli Bibit', 'keluar', this)">🪱 Beli Bibit</div>
+            <div class="kat-opt" onclick="setKat('Pakan/Limbah', 'keluar', this)">🍲 Pakan</div>
+            <div class="kat-opt" onclick="setKat('Logistik', 'keluar', this)">🚚 Logistik</div>
+            <div class="kat-opt" onclick="setKat('Lainnya', 'keluar', this)">✨ Lainnya</div>
+        </div>
+
+        <div class="grid-keypad">
+            <button class="key" onclick="press('1')">1</button><button class="key" onclick="press('2')">2</button><button class="key" onclick="press('3')">3</button>
+            <button class="key" onclick="press('4')">4</button><button class="key" onclick="press('5')">5</button><button class="key" onclick="press('6')">6</button>
+            <button class="key" onclick="press('7')">7</button><button class="key" onclick="press('8')">8</button><button class="key" onclick="press('9')">9</button>
+            <button class="key" style="color:var(--danger)" onclick="press('C')">C</button><button class="key" onclick="press('0')">0</button>
+            <button class="key" style="color:var(--primary)" onclick="simpan()">OK</button>
+        </div>
+        
+        <h3 style="margin-top:25px;">Histori Terakhir</h3>
+        <div id="histori-list" class="card"></div>
+    </div>
+
+    <div id="kandang" class="container">
+        <h2>📦 Manajemen Kandang</h2>
+        <div class="grid-2">
+            <div class="stat-box"><span class="val" id="stok-fresh">0 kg</span><small>Fresh</small></div>
+            <div class="stat-box"><span class="val" id="stok-kering">0 kg</span><small>Kering</small></div>
+        </div>
+
+        <div class="card" style="margin-top:15px;">
+            <h3>Tren Penjualan</h3>
+            <canvas id="chartJual"></canvas>
+        </div>
+
+        <div class="card">
+            <h3>Data Customer & Piutang</h3>
+            <table>
+                <thead><tr><th>Nama</th><th>Status</th><th>Tagihan</th></tr></thead>
+                <tbody id="customer-list">
+                    <tr><td>Budi S.</td><td class="status-hutang">Belum Bayar</td><td>Rp 140.000</td></tr>
+                    <tr><td>H. Mulyono</td><td class="status-lunas">Lunas</td><td>Rp 0</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab-item active" onclick="tab('home', this)"><span class="tab-icon">🏠</span>Dashboard</button>
+        <button class="tab-item" onclick="tab('uang', this)"><span class="tab-icon">💰</span>Uang</button>
+        <button class="tab-item" onclick="tab('kandang', this)"><span class="tab-icon">📦</span>Kandang</button>
+    </div>
+
+    <script>
+        // --- FIREBASE KONFIG (SESUAIKAN DENGAN PUNYA PAK JOKO) ---
+        const firebaseConfig = {
+            databaseURL: "https://databasemaggot-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Ambil Stok Realtime
+        db.ref('maggot_v8').on('value', (snap) => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('stok-fresh').innerText = d.stokH + " kg";
+                document.getElementById('stok-kering').innerText = d.stokK + " kg";
+            }
+        });
+
+        // --- LOGIKA INPUT UANG ---
+        let inputSkrg = "0";
+        let katSkrg = "Jual Maggot";
+        let tipeSkrg = "masuk";
+
+        function setKat(nama, tipe, el) {
+            katSkrg = nama; tipeSkrg = tipe;
+            document.querySelectorAll('.kat-opt').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function press(k) {
+            if(k === 'C') inputSkrg = "0";
+            else inputSkrg = inputSkrg === "0" ? k : inputSkrg + k;
+            document.getElementById('screen').innerText = "Rp " + parseInt(inputSkrg).toLocaleString();
+        }
+
+        function simpan() {
+            const data = { ket: katSkrg, nominal: parseInt(inputSkrg), tipe: tipeSkrg, tgl: new Date().toLocaleString() };
+            db.ref('transaksi').push(data);
+            alert("Berhasil dicatat!");
+            inputSkrg = "0"; press('C');
+        }
+
+        // --- GRAFIK ---
+        new Chart(document.getElementById('chartLaba'), {
+            type: 'pie',
+            data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [70, 30], backgroundColor: ['#2d6a4f', '#d00000'] }] }
+        });
+
+        new Chart(document.getElementById('chartJual'), {
+            type: 'line',
+            data: { labels: ['M1', 'M2', 'M3', 'M4'], datasets: [{ label: 'Kg Terjual', data: [50, 80, 65, 90], borderColor: '#2d6a4f' }] }
+        });
+
+        function tab(id, b) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            b.classList.add('active');
+        }
+    </script>
+</body>
+</html>
