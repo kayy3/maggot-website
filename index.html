@@ -7,6 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
     <style>
         :root {
             --primary-green: #2d6a4f;
@@ -14,7 +17,7 @@
             --light-bg: #f8fdfa;
             --whatsapp-color: #25D366;
             --dark: #1b4332;
-            --star-color: #ffcc00; /* Warna Kuning Bintang */
+            --star-color: #ffcc00;
             --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
@@ -25,7 +28,7 @@
             overflow-x: hidden;
         }
 
-        /* NAVBAR SHORTCUTS - GLASSMORPISM */
+        /* NAVBAR SHORTCUTS */
         .nav-shortcuts {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
@@ -49,14 +52,12 @@
             border: 2px solid var(--primary-green);
             border-radius: 50px;
             transition: var(--transition);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
         .nav-shortcuts button:hover {
             background: var(--primary-green);
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(45, 106, 79, 0.2);
         }
 
         .container { max-width: 1100px; margin: 0 auto; padding: 80px 20px; }
@@ -79,6 +80,7 @@
             text-align: center;
             border: 1px solid #f0f0f0;
             transition: var(--transition);
+            position: relative;
         }
         .product-card:hover {
             transform: translateY(-12px);
@@ -86,45 +88,37 @@
             border-color: var(--accent-green);
         }
 
-        /* SMOOTH SLIDER TESTIMONI */
+        /* Badge Stok */
+        .stock-info {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #666;
+            padding: 8px;
+            background: #f1f8f5;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .stock-value { font-weight: 700; color: var(--primary-green); }
+
+        /* TESTIMONI */
         .testimonial-slider {
             display: flex;
             overflow-x: auto;
-            scroll-snap-type: x mandatory;
             gap: 25px;
             padding: 30px 10px;
             scrollbar-width: none;
-            scroll-behavior: smooth;
         }
-        .testimonial-slider::-webkit-scrollbar { display: none; }
-        
         .testimonial-card {
             min-width: 320px;
             background: white; padding: 35px; border-radius: 24px;
-            scroll-snap-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            transition: var(--transition);
         }
+        .stars { color: var(--star-color); font-size: 1.2rem; margin-bottom: 15px; }
 
-        /* Update Bintang & Komentar Miring */
-        .stars { 
-            color: var(--star-color); 
-            font-size: 1.2rem; 
-            margin-bottom: 15px; 
-        }
-        .testimonial-card p {
-            font-style: italic; /* Teks miring */
-            line-height: 1.6;
-            color: #555;
-        }
-
-        /* FAQ ACCORDION */
-        .faq-item { background: white; margin-bottom: 12px; border-radius: 16px; border: 1px solid #eee; transition: var(--transition); }
-        .faq-question { padding: 20px 25px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .faq-answer { 
-            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 25px; color: #666; 
-        }
-        .faq-item.active { border-color: var(--primary-green); background: var(--light-bg); }
+        /* FAQ */
+        .faq-item { background: white; margin-bottom: 12px; border-radius: 16px; border: 1px solid #eee; }
+        .faq-question { padding: 20px 25px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 25px; color: #666; }
         .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 20px; }
 
         /* MODAL */
@@ -135,34 +129,22 @@
             left: 0; top: 0; width: 100%; height: 100%;
             background-color: rgba(8, 28, 21, 0.9);
             backdrop-filter: blur(8px);
-            opacity: 0;
-            transition: opacity 0.4s ease;
         }
-        .modal.show { display: block; opacity: 1; }
+        .modal.show { display: block; }
         .modal-content {
             background: white; margin: 5vh auto; padding: 40px;
             width: 90%; max-width: 700px; border-radius: 30px;
-            transform: scale(0.7);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .modal.show .modal-content { transform: scale(1); }
 
         .btn {
             background-color: var(--whatsapp-color); color: white;
             padding: 20px 45px; text-decoration: none; border-radius: 50px;
             display: inline-block; font-weight: 700; border: none; cursor: pointer;
             transition: var(--transition);
-            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
         }
-        .btn:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 15px 30px rgba(37, 211, 102, 0.4); }
+        .btn:hover { transform: scale(1.05); }
 
         footer { background: var(--dark); color: white; text-align: center; padding: 60px 20px; }
-
-        @media (max-width: 768px) {
-            header h1 { font-size: 2.2rem; }
-            .nav-shortcuts { padding: 10px; gap: 8px; }
-            .nav-shortcuts button { padding: 8px 12px; font-size: 0.65rem; }
-        }
     </style>
 </head>
 <body>
@@ -187,87 +169,44 @@
                 <div style="font-size: 3rem; margin-bottom: 10px;">🐛</div>
                 <h3>Maggot Fresh</h3>
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 7.000 <small>/kg</small></p>
+                <div class="stock-info">Stok Tersedia: <span id="stok-hidup" class="stock-value">Memuat...</span></div>
             </div>
             <div class="product-card" data-aos="fade-up" data-aos-delay="200" style="border: 2px solid var(--primary-green);">
                 <div style="font-size: 3rem; margin-bottom: 10px;">☀️</div>
                 <h3>Dried Maggot</h3>
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 15.000 <small>/100gr</small></p>
+                <div class="stock-info">Stok Tersedia: <span id="stok-kering" class="stock-value">Memuat...</span></div>
             </div>
             <div class="product-card" data-aos="fade-up" data-aos-delay="300">
                 <div style="font-size: 3rem; margin-bottom: 10px;">⚗️</div>
                 <h3>Tepung Maggot</h3>
                 <p style="font-size: 1.5rem; font-weight: 700; color: var(--primary-green);">Rp 65.000 <small>/kg</small></p>
+                <div class="stock-info">Status: <span class="stock-value">Selalu Tersedia</span></div>
             </div>
         </div>
     </div>
 
-    <div style="background: var(--light-bg); padding: 100px 0; overflow: hidden;">
+    <div style="background: var(--light-bg); padding: 100px 0;">
         <div class="container">
-            <h2 data-aos="fade-up">Apa Kata Mereka?</h2>
-            <div class="testimonial-slider" data-aos="fade-left">
+            <h2>Apa Kata Mereka?</h2>
+            <div class="testimonial-slider">
                 <div class="testimonial-card">
                     <div class="stars">★★★★★</div>
-                    <p>"Koi saya jadi lebih lincah dan warnanya makin tajam."</p>
+                    <p><i>"Koi saya jadi lebih lincah dan warnanya makin tajam."</i></p>
                     <strong>— Budi Santoso</strong>
                 </div>
                 <div class="testimonial-card">
                     <div class="stars">★★★★★</div>
-                    <p>"Respon Pak Joko sangat ramah, pakan lele jadi hemat. Sangat terbantu sekali!"</p>
+                    <p><i>"Respon Pak Joko sangat ramah, pakan lele jadi hemat."</i></p>
                     <strong>— H. Mulyono</strong>
                 </div>
-                <div class="testimonial-card">
-                    <div class="stars">★★★★★</div>
-                    <p>"Produk bersih, tidak bau, pengiriman kilat! Maggot keringnya kualitas super."</p>
-                    <strong>— Sari Putri</strong>
-                </div>
-                <div class="testimonial-card">
-                    <div class="stars">★★★★★</div>
-                    <p>"Ayam bangkok saya jadi lebih sehat dan bulunya mengkilap setelah rutin pakai tepung maggot."</p>
-                    <strong>— Pak De Bowo</strong>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <h2 data-aos="fade-up">Tanya Jawab (FAQ)</h2>
-        <div class="faq-container">
-            <div class="faq-item" data-aos="fade-up">
-                <div class="faq-question">Apakah melayani pengiriman luar kota? <span>▼</span></div>
-                <div class="faq-answer">Ya, kami mengirimkan produk maggot kering dan tepung ke seluruh wilayah Indonesia melalui kurir ekspedisi.</div>
-            </div>
-            <div class="faq-item" data-aos="fade-up">
-                <div class="faq-question">Berapa minimal pemesanan? <span>▼</span></div>
-                <div class="faq-answer">Untuk Maggot Fresh minimal 5kg (Area Semarang), untuk produk kering minimal 1kg.</div>
-            </div>
-             <div class="faq-item" data-aos="fade-up">
-                <div class="faq-question">Bagaimana cara menyimpannya? <span>▼</span></div>
-                <div class="faq-answer">Cukup simpan di wadah kedap udara dan hindari sinar matahari langsung agar awet hingga 6 bulan.</div>
-            </div>
-        </div>
-    </div>
-
-    <div style="text-align: center; padding: 120px 20px; background: linear-gradient(white, var(--light-bg));">
-        <h2 data-aos="zoom-in">Siap Tingkatkan Kualitas Ternak?</h2>
-        <p style="margin-bottom: 40px;">Konsultasi pakan gratis langsung dengan Pak Joko.</p>
-        <a href="https://wa.me/6287718963929" class="btn" data-aos="pulse">HUBUNGI WHATSAPP KAMI</a>
-    </div>
-
-    <div id="modalGaleri" class="modal" onclick="closeModal('modalGaleri')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 style="margin-top:0;">Galeri Produksi</h2>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                <img src="https://image2url.com/r2/default/images/1774798585294-4b639b81-7b05-4734-a90a-7fa48e1668a3.blob" style="width:100%; border-radius:20px;">
-                <img src="https://image2url.com/r2/default/images/1774798575228-1db6a94e-6b9f-4f02-bb96-ac30044dedd0.blob" style="width:100%; border-radius:20px;">
-            </div>
-        </div>
-    </div>
-
-    <div id="modalLokasi" class="modal" onclick="closeModal('modalLokasi')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 style="margin-top:0;">Lokasi Kami</h2>
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3959.6589993204043!2d110.41786237477154!3d-7.0492968929529285!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708bf981dc5289%3A0x648b79f844753a3c!2sBina%20Khoirul%20Insan%20Islamic%20Boarding%20School%20Semarang%20(LDII)!5e0!3m2!1sen!2sid!4v1774797825867!5m2!1sen!2sid" width="100%" height="400" style="border:0; border-radius:20px;" allowfullscreen=""></iframe> 
-        </div>
+    <div style="text-align: center; padding: 100px 20px;">
+        <h2>Siap Tingkatkan Kualitas Ternak?</h2>
+        <a href="https://wa.me/6287718963929" class="btn">HUBUNGI WHATSAPP KAMI</a>
     </div>
 
     <div id="modalOrder" class="modal" onclick="closeModal('modalOrder')">
@@ -294,23 +233,39 @@
     <script>
         AOS.init({ duration: 1000, once: true });
 
-        function openModal(id) {
-            const m = document.getElementById(id);
-            m.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal(id) {
-            const m = document.getElementById(id);
-            m.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
+        // --- KONFIGURASI FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyChqOp23LDS_T5E0NSjF2PvCwZ-aku00ns",
+            authDomain: "databasemaggot.firebaseapp.com",
+            databaseURL: "https://databasemaggot-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "databasemaggot",
+            storageBucket: "databasemaggot.firebasestorage.app",
+            messagingSenderId: "895666878555",
+            appId: "1:895666878555:web:37dc347ae51ab64451e77e"
+        };
 
-        document.querySelectorAll('.faq-question').forEach(q => {
-            q.addEventListener('click', () => {
-                const item = q.parentElement;
-                item.classList.toggle('active');
-            });
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Mendengarkan perubahan stok secara Real-time
+        database.ref('maggot_v8').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const sHidup = document.getElementById('stok-hidup');
+                const sKering = document.getElementById('stok-kering');
+                
+                sHidup.innerText = (data.stokH || 0).toFixed(1) + ' kg';
+                sKering.innerText = (data.stokK || 0).toFixed(1) + ' kg';
+
+                // Alert visual jika stok menipis
+                sHidup.style.color = data.stokH < 5 ? '#ef4444' : '#2d6a4f';
+                sKering.style.color = data.stokK < 2 ? '#ef4444' : '#2d6a4f';
+            }
         });
+
+        // Fungsi UI & WhatsApp
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
         function kirimWA() {
             let n = document.getElementById("nama").value;
