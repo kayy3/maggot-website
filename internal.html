@@ -136,15 +136,15 @@
 </div>
 
 <script>
-    // 1. KONFIGURASI FIREBASE (SUDAH DISESUAIKAN DENGAN SCREENSHOT ANDA)
+    // KONFIGURASI SESUAI PROYEK "databasemaggot"
     const firebaseConfig = {
-        apiKey: "AIzaSyCn8QGjqKdOseFuF7jK6KbTEXgci9CEoOg",
-        authDomain: "green-maggot-504d0.firebaseapp.com",
-        databaseURL: "https://green-maggot-504d0-default-rtdb.firebaseio.com",
-        projectId: "green-maggot-504d0",
-        storageBucket: "green-maggot-504d0.firebasestorage.app",
-        messagingSenderId: "698377662442",
-        appId: "1:698377662442:web:57fb14d190cdabe527cc93"
+        apiKey: "AIzaSyChqOp23LDS_T5E0NSjF2PvCwZ-aku00ns",
+        authDomain: "databasemaggot.firebaseapp.com",
+        databaseURL: "https://databasemaggot-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "databasemaggot",
+        storageBucket: "databasemaggot.firebasestorage.app",
+        messagingSenderId: "895666878555",
+        appId: "1:895666878555:web:37dc347ae51ab64451e77e"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -153,7 +153,6 @@
 
     let db = { stokH: 0, stokK: 0, hotels: [], contracts: [], history: [0] };
 
-    // 2. SINKRONISASI CLOUD
     dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -168,7 +167,6 @@
 
     function save() { dbRef.set(db); }
 
-    // 3. LOGIKA APLIKASI
     function showPage(e, id) {
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
         e.currentTarget.classList.add('active');
@@ -185,7 +183,7 @@
         save();
         document.getElementById('in-hidup').value = '';
         document.getElementById('in-kering').value = '';
-        Swal.fire('Update', 'Stok berhasil disinkronkan ke Cloud', 'success');
+        Swal.fire('Sukses', 'Data tersimpan di cloud!', 'success');
     }
 
     function addHotel() {
@@ -207,48 +205,39 @@
         const v = parseFloat(document.getElementById('k-vol').value) || 0;
         const h = parseFloat(document.getElementById('k-harga').value) || 0;
         const d = document.getElementById('k-tgl').value;
-
-        if(!n || !v || !h || !d) return Swal.fire('Error', 'Data tidak lengkap', 'error');
+        if(!n || !v || !h || !d) return Swal.fire('Error', 'Lengkapi data', 'error');
         if(t === "Hidup" && v > db.stokH) return Swal.fire('Gagal', 'Stok Hidup Kurang', 'error');
         if(t === "Kering" && v > db.stokK) return Swal.fire('Gagal', 'Stok Kering Kurang', 'error');
-
         if(t === "Hidup") db.stokH -= v; else db.stokK -= v;
         db.contracts.push({n, t, v, h, d, s: 'Belum Lunas'});
         db.history.push(db.stokH + db.stokK);
         save();
-        Swal.fire('Berhasil', 'Transaksi tercatat di semua perangkat', 'success');
+        Swal.fire('Berhasil', 'Transaksi Berhasil!', 'success');
     }
 
     function renderAll() {
         document.getElementById('dash-hidup').innerText = (db.stokH || 0).toFixed(1) + ' kg';
         document.getElementById('dash-kering').innerText = (db.stokK || 0).toFixed(1) + ' kg';
-        
         let rev = 0, pCount = 0;
         const today = new Date().toISOString().split('T')[0];
         let kHtml = '', cListHtml = '';
-
         (db.contracts || []).forEach((k, i) => {
             const isOverdue = k.d < today && k.s === 'Belum Lunas';
             if(k.s === 'Belum Lunas') pCount++;
             rev += (k.v * k.h);
             let statusBadge = isOverdue ? 'bg-overdue' : (k.s === 'Lunas' ? 'bg-paid' : 'bg-pending');
-            
             cListHtml += `<div style="padding:10px; border-bottom:1px solid #eee; font-size:12px;">
                 <b>${k.n}</b> <span class="badge ${statusBadge}" style="float:right">${isOverdue ? 'OVERDUE' : k.s}</span><br>
                 <small>Rp ${(k.v*k.h).toLocaleString()}</small></div>`;
-
-            kHtml += `<tr style="${isOverdue ? 'background:#fff5f5' : ''}">
-                <td>${k.n}</td><td>${k.t}</td><td>${k.v}kg</td><td>${k.d}</td>
+            kHtml += `<tr><td>${k.n}</td><td>${k.t}</td><td>${k.v}kg</td><td>${k.d}</td>
                 <td><span class="badge ${statusBadge}">${isOverdue ? 'OVERDUE' : k.s}</span></td>
                 <td><button onclick="toggleS(${i})" class="btn-del" style="background:#2ecc71">Status</button>
                 <button onclick="delKontrak(${i})" class="btn-del">Hapus</button></td></tr>`;
         });
-
         document.getElementById('dash-piutang').innerText = pCount;
         document.getElementById('dash-nilai').innerText = 'Rp ' + rev.toLocaleString();
-        document.getElementById('dash-cust-list').innerHTML = cListHtml || '<p style="padding:10px">Kosong</p>';
+        document.getElementById('dash-cust-list').innerHTML = cListHtml || 'Kosong';
         document.getElementById('tabel-kontrak').innerHTML = kHtml;
-
         let hHtml = '';
         (db.hotels || []).forEach((h, i) => {
             hHtml += `<tr><td>${h.n}</td><td>${h.l}kg</td><td>${h.j}km</td><td>${h.j < 5 ? 'Efisien' : 'Jauh'}</td>
