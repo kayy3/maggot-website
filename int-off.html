@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navigasi Maggot Pak Joko</title>
+    <title>Green Maggot Nav</title>
+    
+    <meta name="theme-color" content="#1e8449">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1e8449;
-            --accent: #40916c;
             --bg: #f8fafc;
             --white: #ffffff;
             --shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -17,72 +21,50 @@
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg); 
-            margin: 0; 
-            padding: 20px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            margin: 0; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
         
-        .header { text-align: center; margin-bottom: 30px; margin-top: 20px; }
-        .header h1 { color: var(--primary); font-size: 1.6rem; margin: 0; font-weight: 800; letter-spacing: -1px; }
+        /* Indikator Sinyal */
+        #offline-notice {
+            background: #ef4444; color: white; padding: 5px 15px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 700; margin-bottom: 10px; display: none;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
+        .header h1 { color: var(--primary); font-size: 1.6rem; margin: 0; font-weight: 800; }
         .header p { font-size: 0.85rem; color: #64748b; margin-top: 5px; }
 
-        /* Container Menu Utama */
-        .menu-container {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .menu-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
 
-        /* Styling Tombol Pintasan */
         .shortcut-card {
-            background: var(--white);
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            border-radius: 20px;
-            text-decoration: none;
-            color: #1e293b;
-            box-shadow: var(--shadow);
-            border: 1px solid #f1f5f9;
-            transition: all 0.3s ease;
+            background: var(--white); display: flex; align-items: center; padding: 20px;
+            border-radius: 20px; text-decoration: none; color: #1e293b;
+            box-shadow: var(--shadow); border: 1px solid #f1f5f9; transition: 0.3s;
         }
 
-        .shortcut-card:active {
-            transform: scale(0.96);
-            background: #f1f5f9;
-        }
+        .shortcut-card:active { transform: scale(0.96); background: #f1f5f9; }
 
         .icon-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            margin-right: 20px;
+            width: 60px; height: 60px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin-right: 20px;
         }
 
-        /* Warna Ikon */
         .bg-toko { background: #eef7f2; color: #1e8449; }
         .bg-stok { background: #fff7ed; color: #f59e0b; }
         .bg-money { background: #eff6ff; color: #3b82f6; }
 
         .info h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
         .info p { margin: 3px 0 0; font-size: 0.75rem; color: #94a3b8; }
+        .arrow { margin-left: auto; color: #cbd5e1; font-weight: 800; }
 
-        .arrow { margin-left: auto; color: #cbd5e1; font-weight: 800; font-size: 1.2rem; }
-
-        /* Footer */
         .footer { margin-top: auto; padding: 20px; font-size: 0.7rem; color: #cbd5e1; text-align: center; }
     </style>
 </head>
 <body>
+
+    <div id="offline-notice">⚠️ Mode Offline: Membuka data tersimpan</div>
 
     <div class="header">
         <h1>🌱 GREEN MAGGOT</h1>
@@ -90,39 +72,62 @@
     </div>
 
     <div class="menu-container">
-        
         <a href="https://kayy3.github.io/maggot-website/index.html" class="shortcut-card">
             <div class="icon-circle bg-toko">🛒</div>
-            <div class="info">
-                <h3>Website Toko</h3>
-                <p>Cek tampilan depan & pesanan</p>
-            </div>
+            <div class="info"><h3>Website Toko</h3><p>Cek tampilan depan</p></div>
             <div class="arrow">➔</div>
         </a>
 
         <a href="https://kayy3.github.io/maggot-website/internal" class="shortcut-card">
             <div class="icon-circle bg-stok">📦</div>
-            <div class="info">
-                <h3>Manajemen Stok</h3>
-                <p>Update stok & logistik hotel</p>
-            </div>
+            <div class="info"><h3>Manajemen Stok</h3><p>Update logistik kandang</p></div>
             <div class="arrow">➔</div>
         </a>
 
         <a href="https://kayy3.github.io/maggot-website/money" class="shortcut-card">
             <div class="icon-circle bg-money">💰</div>
-            <div class="info">
-                <h3>Laporan Keuangan</h3>
-                <p>Grafik, omzet & piutang</p>
-            </div>
+            <div class="info"><h3>Laporan Cuan</h3><p>Grafik & piutang</p></div>
             <div class="arrow">➔</div>
         </a>
-
     </div>
 
-    <div class="footer">
-        v15.0 Premium Cloud Access
-    </div>
+    <div class="footer">v16.0 Offline Ready Access</div>
 
+    <script>
+        // 1. Cek Koneksi Internet
+        window.addEventListener('load', () => {
+            function updateStatus() {
+                document.getElementById('offline-notice').style.display = navigator.onLine ? "none" : "block";
+            }
+            window.addEventListener('online', updateStatus);
+            window.addEventListener('offline', updateStatus);
+            updateStatus();
+        });
+
+        // 2. Kode Service Worker (Inti agar bisa Offline)
+        // Kita gunakan Blob agar tidak butuh file eksternal .js
+        const swCode = `
+            const CACHE_NAME = 'maggot-v1';
+            const ASSETS = [
+                '/',
+                window.location.href,
+                'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap'
+            ];
+
+            self.addEventListener('install', (e) => {
+                e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+            });
+
+            self.addEventListener('fetch', (e) => {
+                e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+            });
+        `;
+
+        if ('serviceWorker' in navigator) {
+            const blob = new Blob([swCode], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(url);
+        }
+    </script>
 </body>
 </html>
