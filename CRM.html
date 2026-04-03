@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kandang & Forecasting - Green Maggot</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root { --primary: #1e8449; --bg: #f8fafc; --white: #ffffff; --danger: #ef4444; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; padding-bottom: 100px; color: #1e293b; }
+        
+        .card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-box { background: #ebf5ee; padding: 15px; border-radius: 15px; text-align: center; }
+        .val { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: block; }
+        
+        /* Form Styling */
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box; font-family: inherit; }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-wa { background: #25D366; color: white; text-decoration: none; display: inline-block; text-align: center; font-size: 0.8rem; font-weight: bold; }
+        
+        /* Status Sinyal */
+        #status-sinyal { position: fixed; top: 0; left: 0; width: 100%; padding: 5px; text-align: center; font-size: 10px; font-weight: 800; color: white; z-index: 2000; display: none; }
+        .offline { background: var(--danger); display: block !important; }
+
+        .lead-card { border: 1px solid #e2e8f0; padding: 15px; border-radius: 15px; margin-bottom: 10px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; background: #dcfce7; color: #15803d; }
+    </style>
+</head>
+<body>
+
+    <div id="status-sinyal">MODE OFFLINE: DATA DISIMPAN DI HP</div>
+
+    <h1>📦 Data Kandang</h1>
+    
+    <div class="grid-2">
+        <div class="stat-box"><span class="val" id="stok-h">0 kg</span><small>Stok Hidup</small></div>
+        <div class="stat-box"><span class="val" id="stok-k">0 kg</span><small>Stok Kering</small></div>
+    </div>
+
+    <div class="card" style="margin-top:20px; background: #fffbeb; border: 1px solid #fde68a;">
+        <h4 style="margin: 0 0 10px 0; color: #92400e;">📝 Edit Pesan Penawaran</h4>
+        <textarea id="msg-template" rows="3" oninput="refreshLeads()" style="border-color: #fde68a;">Halo [nama], saya Pak Joko dari Green Maggot. Mau tanya apakah stok pakan untuk ternaknya masih aman? Kami ada stok segar hari ini.</textarea>
+        <p style="font-size: 0.7rem; color: #b45309; margin: 0;">*Kata <b>[nama]</b> akan otomatis berubah sesuai data peternak.</p>
+    </div>
+
+    <div class="card" style="border-top: 5px solid var(--primary);">
+        <h3>🔍 Demand Forecasting</h3>
+        <p style="font-size: 0.8rem; color: #64748b; margin-top:-10px;">Input calon pembeli untuk diprospek</p>
+        
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
+            <input type="text" id="lead-nama" placeholder="Nama Peternak/Usaha">
+            <input type="number" id="lead-wa" placeholder="No. WA (Contoh: 62812...)">
+            <select id="lead-kebutuhan">
+                <option value="50">Kebutuhan: 50kg/minggu</option>
+                <option value="100">Kebutuhan: 100kg/minggu</option>
+                <option value="500">Kebutuhan: >500kg (Skala Besar)</option>
+            </select>
+            <button class="btn-primary" onclick="simpanLead()">+ Simpan Calon Pembeli</button>
+        </div>
+
+        <div id="leads-list"></div>
+    </div>
+
+    <script>
+        // --- CONFIG FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyChqOp23LDS_T5E0NSjF2PvCwZ-aku00ns",
+            databaseURL: "https://databasemaggot-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentDataLeads = null; // Simpan data sementara untuk refresh tampilan
+
+        // --- 1. SYNC STOK REALTIME ---
+        db.ref('maggot_v8').on('value', (snap) => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('stok-h').innerText = (data.stokH || 0) + " kg";
+                document.getElementById('stok-k').innerText = (data.stokK || 0) + " kg";
+            }
+        });
+
+        // --- 2. LOGIKA DEMAND FORECASTING ---
+        function simpanLead() {
+            const nama = document.getElementById('lead-nama').value;
+            const wa = document.getElementById('lead-wa').value;
+            const butuh = document.getElementById('lead-kebutuhan').value;
+
+            if(!nama || !wa) return alert("Isi nama dan nomor WA dulu, Pak!");
+
+            const data = { nama, wa, butuh, tgl: new Date().toLocaleDateString() };
+
+            if (navigator.onLine) {
+                db.ref('maggot_v8/leads_forecasting').push(data);
+                alert("Data berhasil tersimpan ke Cloud!");
+            } else {
+                let antrean = JSON.parse(localStorage.getItem('off_leads')) || [];
+                antrean.push(data);
+                localStorage.setItem('off_leads', JSON.stringify(antrean));
+                alert("Sinyal lemah! Data disimpan di HP (Offline).");
+                refreshLeads(); 
+            }
+            document.getElementById('lead-nama').value = "";
+            document.getElementById('lead-wa').value = "";
+        }
+
+        // Ambil Data dari Firebase
+        db.ref('maggot_v8/leads_forecasting').on('value', (snap) => {
+            currentDataLeads = snap.val();
+            tampilkanDataLeads(currentDataLeads);
+        });
+
+        // Fungsi bantu untuk refresh saat ngetik pesan
+        function refreshLeads() {
+            tampilkanDataLeads(currentDataLeads);
+        }
+
+        function tampilkanDataLeads(dataFirebase) {
+            const list = document.getElementById('leads-list');
+            const template = document.getElementById('msg-template').value;
+            list.innerHTML = "";
+            
+            if(dataFirebase) {
+                Object.keys(dataFirebase).forEach(key => {
+                    const item = dataFirebase[key];
+                    
+                    // GANTI [nama] dengan nama asli peternak
+                    let pesanFinal = template.replace("[nama]", item.nama);
+                    const waLink = `https://wa.me/${item.wa}?text=${encodeURIComponent(pesanFinal)}`;
+                    
+                    list.innerHTML += `
+                        <div class="lead-card">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>👤 ${item.nama}</strong>
+                                <span class="badge">POTENSI ${item.butuh}KG</span>
+                            </div>
+                            <div style="margin-top:10px; display:flex; gap:10px;">
+                                <a href="${waLink}" target="_blank" class="btn-wa" style="flex:2; padding:10px; border-radius:8px;">🚀 Kirim Penawaran</a>
+                                <button onclick="hapusLead('${key}')" style="flex:1; background:#f1f5f9; color:red; padding:8px; border-radius:8px;">Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                list.innerHTML = "<p style='text-align:center; font-size:0.8rem; color:#94a3b8;'>Belum ada data calon pembeli.</p>";
+            }
+        }
+
+        function hapusLead(key) {
+            if(confirm("Hapus calon pembeli ini?")) {
+                db.ref('maggot_v8/leads_forecasting/' + key).remove();
+            }
+        }
+
+        // --- 3. AUTO SYNC ---
+        window.addEventListener('online', () => {
+            document.getElementById('status-sinyal').className = "";
+            let antrean = JSON.parse(localStorage.getItem('off_leads')) || [];
+            if(antrean.length > 0) {
+                antrean.forEach(d => db.ref('maggot_v8/leads_forecasting').push(d));
+                localStorage.removeItem('off_leads');
+                alert("Data offline berhasil disinkronkan!");
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('status-sinyal').className = "offline";
+        });
+    </script>
+</body>
+</html>
