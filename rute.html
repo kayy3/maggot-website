@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimasi Rute & Emisi - Green Maggot</title>
+    <style>
+        :root { --primary: #1e8449; --bg: #f8fafc; --white: #ffffff; --danger: #ef4444; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; padding-bottom: 50px; }
+        
+        .card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+        
+        /* Form & List */
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #cbd5e1; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-maps { background: #4285F4; color: white; text-decoration: none; display: inline-block; text-align: center; border-radius: 10px; padding: 12px; font-weight: bold; width: 100%; box-sizing: border-box; }
+        
+        .hotel-item { background: #f1f5f9; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Ringkasan Emisi */
+        .emisi-box { background: #e0f2fe; padding: 15px; border-radius: 15px; text-align: center; margin-top: 15px; border: 1px solid #bae6fd; }
+        .val-emisi { font-size: 1.5rem; font-weight: 800; color: #0369a1; display: block; }
+    </style>
+</head>
+<body>
+
+    <h1>🚚 Rute Ambil Sampah</h1>
+    
+    <div class="card" style="border-top: 5px solid #4285F4;">
+        <h3>📍 Tambah Titik Hotel</h3>
+        <input type="text" id="nama-hotel" placeholder="Contoh: Hotel Santika">
+        <input type="text" id="alamat-hotel" placeholder="Contoh: Jl. Ahmad Yani No. 10">
+        <button class="btn-primary" onclick="tambahHotel()">+ Tambah ke Daftar Rute</button>
+    </div>
+
+    <div class="card">
+        <h3>📋 Daftar Urutan Pengambilan</h3>
+        <p style="font-size: 0.8rem; color: #64748b; margin-top:-10px;">Urutkan daftar ini dari yang paling dekat dengan lokasi awal Pak Joko.</p>
+        
+        <div id="daftar-hotel">
+            </div>
+
+        <div style="margin-top: 20px;">
+            <label style="font-weight: bold; font-size: 0.9rem;">Estimasi Total Jarak Tempuh (km):</label>
+            <input type="number" id="total-jarak" placeholder="Masukkan jarak (Misal: 15)" oninput="hitungEmisi()">
+        </div>
+
+        <div class="emisi-box">
+            <span class="val-emisi" id="hasil-emisi">0 kg CO₂</span>
+            <small style="color: #0369a1; font-weight: bold;">Jejak Emisi Karbon yang Dihasilkan</small>
+        </div>
+        
+        <p style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 5px;">
+            *Standar emisi motor: ±0,115 kg CO₂ per km.
+        </p>
+
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+        <a href="#" id="link-gmaps" target="_blank" class="btn-maps">🗺️ Buka Rute di Google Maps</a>
+    </div>
+
+    <script>
+        // Array tempat menyimpan data rute hotel
+        let ruteHotel = [
+            { nama: "Kandang Green Maggot", alamat: "Lokasi Kandang Pak Joko" } // Titik Awal
+        ];
+
+        function tambahHotel() {
+            const nama = document.getElementById('nama-hotel').value;
+            const alamat = document.getElementById('alamat-hotel').value;
+
+            if(!nama || !alamat) return alert("Harap isi nama hotel dan alamatnya dulu, Pak!");
+
+            ruteHotel.push({ nama, alamat });
+            
+            // Reset Input
+            document.getElementById('nama-hotel').value = "";
+            document.getElementById('alamat-hotel').value = "";
+
+            tampilkanList();
+        }
+
+        function tampilkanList() {
+            const listDiv = document.getElementById('daftar-hotel');
+            listDiv.innerHTML = "";
+
+            ruteHotel.forEach((hotel, index) => {
+                const icon = index === 0 ? "🏠 (Mulai)" : `📍 #${index}`;
+                listDiv.innerHTML += `
+                    <div class="hotel-item">
+                        <div>
+                            <small style="color:var(--primary); font-weight:bold;">${icon}</small><br>
+                            <strong>${hotel.nama}</strong> <br>
+                            <span style="font-size:0.8rem; color:#64748b;">${hotel.alamat}</span>
+                        </div>
+                        ${index !== 0 ? `<button onclick="hapusHotel(${index})" style="width:auto; padding:5px 10px; background:#fee2e2; color:red; font-size:0.8rem;">Hapus</button>` : ''}
+                    </div>
+                `;
+            });
+
+            updateLinkGmaps();
+        }
+
+        function hapusHotel(index) {
+            ruteHotel.splice(index, 1);
+            tampilkanList();
+        }
+
+        // Fungsi Hitung Emisi Karbon
+        function hitungEmisi() {
+            const jarak = document.getElementById('total-jarak').value;
+            const faktorEmisi = 0.115; // Rata-rata kg CO2 per km untuk kendaraan roda 2
+            
+            if(jarak > 0) {
+                const totalEmisi = (jarak * faktorEmisi).toFixed(2);
+                document.getElementById('hasil-emisi').innerText = totalEmisi + " kg CO₂";
+            } else {
+                document.getElementById('hasil-emisi').innerText = "0 kg CO₂";
+            }
+        }
+
+        // Fungsi Generate Link Google Maps Otomatis
+        function updateLinkGmaps() {
+            if(ruteHotel.length < 2) {
+                document.getElementById('link-gmaps').href = "#";
+                document.getElementById('link-gmaps').style.opacity = "0.5";
+                return;
+            }
+
+            document.getElementById('link-gmaps').style.opacity = "1";
+            
+            const titikAwal = encodeURIComponent(ruteHotel[0].alamat);
+            const tujuanAkhir = encodeURIComponent(ruteHotel[ruteHotel.length - 1].alamat);
+            
+            // Mengambil titik tengah (waypoint) jika hotel lebih dari 1
+            let waypoints = [];
+            for(let i = 1; i < ruteHotel.length - 1; i++) {
+                waypoints.push(encodeURIComponent(ruteHotel[i].alamat));
+            }
+
+            let link = `https://www.google.com/maps/dir/?api=1&origin=${titikAwal}&destination=${tujuanAkhir}`;
+            
+            if(waypoints.length > 0) {
+                link += `&waypoints=${waypoints.join('%7C')}`;
+            }
+
+            document.getElementById('link-gmaps').href = link;
+        }
+
+        // Tampilkan data awal (hanya kandang)
+        tampilkanList();
+    </script>
+</body>
+</html>
